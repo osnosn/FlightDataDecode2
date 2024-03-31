@@ -1,0 +1,12 @@
+[workspace]
+resolver="2"
+members=[
+	"qar_decode",
+	"qar_raw_dump"
+]
+
+[profile.release]
+strip = true
+opt-level = "s"
+lto = true
+panic = "abort"

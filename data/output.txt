@@ -1,0 +1,665 @@
+文件打开成功："data/raw.dat"
+Hexadecimal representation 十六进制表示:
+--->找到sync字.0x247 wordCnt:0x0
+  --->超级帧索引:2
+subframe:1, time:0.00000, val:152.5, GMT:0:40:25
+subframe:1, time:0.25000, val:153.0, GMT:
+subframe:1, time:0.50000, val:153.0, GMT:
+subframe:1, time:0.75000, val:153.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x400
+subframe:2, time:1.00000, val:153.0, GMT:
+subframe:2, time:1.25000, val:153.5, GMT:
+subframe:2, time:1.50000, val:153.5, GMT:
+subframe:2, time:1.75000, val:153.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x800
+subframe:3, time:2.00000, val:153.5, GMT:
+subframe:3, time:2.25000, val:153.5, GMT:
+subframe:3, time:2.50000, val:154.0, GMT:
+subframe:3, time:2.75000, val:154.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0xC00
+subframe:4, time:3.00000, val:154.0, GMT:
+subframe:4, time:3.25000, val:154.0, GMT:
+subframe:4, time:3.50000, val:154.5, GMT:
+subframe:4, time:3.75000, val:154.5, GMT:
+--->找到sync字.0x247 wordCnt:0x1000
+  --->超级帧索引:3
+subframe:1, time:4.00000, val:154.5, GMT:0:40:29
+subframe:1, time:4.25000, val:154.5, GMT:
+subframe:1, time:4.50000, val:155.0, GMT:
+subframe:1, time:4.75000, val:155.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1400
+subframe:2, time:5.00000, val:155.0, GMT:
+subframe:2, time:5.25000, val:155.0, GMT:
+subframe:2, time:5.50000, val:155.0, GMT:
+subframe:2, time:5.75000, val:155.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x1800
+subframe:3, time:6.00000, val:155.5, GMT:
+subframe:3, time:6.25000, val:155.5, GMT:
+subframe:3, time:6.50000, val:156.0, GMT:
+subframe:3, time:6.75000, val:156.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1C00
+subframe:4, time:7.00000, val:156.0, GMT:
+subframe:4, time:7.25000, val:156.5, GMT:
+subframe:4, time:7.50000, val:156.5, GMT:
+subframe:4, time:7.75000, val:156.5, GMT:
+--->找到sync字.0x247 wordCnt:0x2000
+  --->超级帧索引:4
+subframe:1, time:8.00000, val:157.0, GMT:0:40:33
+subframe:1, time:8.25000, val:157.0, GMT:
+subframe:1, time:8.50000, val:157.5, GMT:
+subframe:1, time:8.75000, val:157.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x2400
+subframe:2, time:9.00000, val:158.0, GMT:
+subframe:2, time:9.25000, val:158.0, GMT:
+subframe:2, time:9.50000, val:158.0, GMT:
+subframe:2, time:9.75000, val:158.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x2800
+subframe:3, time:10.00000, val:158.5, GMT:
+subframe:3, time:10.25000, val:158.5, GMT:
+subframe:3, time:10.50000, val:159.0, GMT:
+subframe:3, time:10.75000, val:159.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x2C00
+subframe:4, time:11.00000, val:159.5, GMT:
+subframe:4, time:11.25000, val:159.5, GMT:
+subframe:4, time:11.50000, val:159.5, GMT:
+subframe:4, time:11.75000, val:160.0, GMT:
+--->找到sync字.0x247 wordCnt:0x3000
+  --->超级帧索引:5
+subframe:1, time:12.00000, val:160.0, GMT:0:40:37
+subframe:1, time:12.25000, val:160.0, GMT:
+subframe:1, time:12.50000, val:160.5, GMT:
+subframe:1, time:12.75000, val:160.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x3400
+subframe:2, time:13.00000, val:160.5, GMT:
+subframe:2, time:13.25000, val:161.0, GMT:
+subframe:2, time:13.50000, val:161.0, GMT:
+subframe:2, time:13.75000, val:161.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x3800
+subframe:3, time:14.00000, val:161.0, GMT:
+subframe:3, time:14.25000, val:161.0, GMT:
+subframe:3, time:14.50000, val:161.0, GMT:
+subframe:3, time:14.75000, val:161.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x3C00
+subframe:4, time:15.00000, val:161.5, GMT:
+subframe:4, time:15.25000, val:161.5, GMT:
+subframe:4, time:15.50000, val:161.5, GMT:
+subframe:4, time:15.75000, val:161.5, GMT:
+--->找到sync字.0x247 wordCnt:0x4000
+  --->超级帧索引:6
+subframe:1, time:16.00000, val:161.5, GMT:0:40:41
+subframe:1, time:16.25000, val:161.5, GMT:
+subframe:1, time:16.50000, val:161.5, GMT:
+subframe:1, time:16.75000, val:161.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x4400
+subframe:2, time:17.00000, val:161.5, GMT:
+subframe:2, time:17.25000, val:161.5, GMT:
+subframe:2, time:17.50000, val:161.5, GMT:
+subframe:2, time:17.75000, val:161.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x4800
+subframe:3, time:18.00000, val:161.5, GMT:
+subframe:3, time:18.25000, val:161.5, GMT:
+subframe:3, time:18.50000, val:161.5, GMT:
+subframe:3, time:18.75000, val:161.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x4C00
+subframe:4, time:19.00000, val:161.5, GMT:
+subframe:4, time:19.25000, val:161.5, GMT:
+subframe:4, time:19.50000, val:161.5, GMT:
+subframe:4, time:19.75000, val:161.5, GMT:
+--->找到sync字.0x247 wordCnt:0x5000
+  --->超级帧索引:7
+subframe:1, time:20.00000, val:161.5, GMT:0:40:45
+subframe:1, time:20.25000, val:161.5, GMT:
+subframe:1, time:20.50000, val:161.5, GMT:
+subframe:1, time:20.75000, val:161.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x5400
+subframe:2, time:21.00000, val:161.5, GMT:
+subframe:2, time:21.25000, val:161.5, GMT:
+subframe:2, time:21.50000, val:161.5, GMT:
+subframe:2, time:21.75000, val:161.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x5800
+subframe:3, time:22.00000, val:161.0, GMT:
+subframe:3, time:22.25000, val:161.0, GMT:
+subframe:3, time:22.50000, val:161.0, GMT:
+subframe:3, time:22.75000, val:161.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x5C00
+subframe:4, time:23.00000, val:161.0, GMT:
+subframe:4, time:23.25000, val:161.0, GMT:
+subframe:4, time:23.50000, val:161.0, GMT:
+subframe:4, time:23.75000, val:161.0, GMT:
+--->找到sync字.0x247 wordCnt:0x6000
+  --->超级帧索引:8
+subframe:1, time:24.00000, val:161.0, GMT:0:40:49
+subframe:1, time:24.25000, val:161.0, GMT:
+subframe:1, time:24.50000, val:161.0, GMT:
+subframe:1, time:24.75000, val:161.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x6400
+subframe:2, time:25.00000, val:161.0, GMT:
+subframe:2, time:25.25000, val:161.0, GMT:
+subframe:2, time:25.50000, val:161.0, GMT:
+subframe:2, time:25.75000, val:161.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x6800
+subframe:3, time:26.00000, val:160.5, GMT:
+subframe:3, time:26.25000, val:160.5, GMT:
+subframe:3, time:26.50000, val:160.5, GMT:
+subframe:3, time:26.75000, val:160.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x6C00
+subframe:4, time:27.00000, val:160.5, GMT:
+subframe:4, time:27.25000, val:160.5, GMT:
+subframe:4, time:27.50000, val:160.0, GMT:
+subframe:4, time:27.75000, val:160.0, GMT:
+--->找到sync字.0x247 wordCnt:0x7000
+  --->超级帧索引:9
+subframe:1, time:28.00000, val:160.0, GMT:0:40:53
+subframe:1, time:28.25000, val:160.0, GMT:
+subframe:1, time:28.50000, val:160.0, GMT:
+subframe:1, time:28.75000, val:160.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x7400
+subframe:2, time:29.00000, val:159.5, GMT:
+subframe:2, time:29.25000, val:159.5, GMT:
+subframe:2, time:29.50000, val:159.5, GMT:
+subframe:2, time:29.75000, val:159.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x7800
+subframe:3, time:30.00000, val:159.5, GMT:
+subframe:3, time:30.25000, val:159.5, GMT:
+subframe:3, time:30.50000, val:159.0, GMT:
+subframe:3, time:30.75000, val:159.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x7C00
+subframe:4, time:31.00000, val:159.0, GMT:
+subframe:4, time:31.25000, val:159.0, GMT:
+subframe:4, time:31.50000, val:159.0, GMT:
+subframe:4, time:31.75000, val:158.5, GMT:
+--->找到sync字.0x247 wordCnt:0x8000
+  --->超级帧索引:10
+subframe:1, time:32.00000, val:158.5, GMT:0:40:57
+subframe:1, time:32.25000, val:158.5, GMT:
+subframe:1, time:32.50000, val:158.5, GMT:
+subframe:1, time:32.75000, val:158.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x8400
+subframe:2, time:33.00000, val:158.5, GMT:
+subframe:2, time:33.25000, val:158.0, GMT:
+subframe:2, time:33.50000, val:158.0, GMT:
+subframe:2, time:33.75000, val:158.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x8800
+subframe:3, time:34.00000, val:158.0, GMT:
+subframe:3, time:34.25000, val:158.0, GMT:
+subframe:3, time:34.50000, val:158.0, GMT:
+subframe:3, time:34.75000, val:157.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x8C00
+subframe:4, time:35.00000, val:157.5, GMT:
+subframe:4, time:35.25000, val:157.5, GMT:
+subframe:4, time:35.50000, val:157.5, GMT:
+subframe:4, time:35.75000, val:157.5, GMT:
+--->找到sync字.0x247 wordCnt:0x9000
+  --->超级帧索引:11
+subframe:1, time:36.00000, val:157.5, GMT:0:41:1
+subframe:1, time:36.25000, val:157.0, GMT:
+subframe:1, time:36.50000, val:157.0, GMT:
+subframe:1, time:36.75000, val:157.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x9400
+subframe:2, time:37.00000, val:157.0, GMT:
+subframe:2, time:37.25000, val:156.5, GMT:
+subframe:2, time:37.50000, val:156.5, GMT:
+subframe:2, time:37.75000, val:156.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x9800
+subframe:3, time:38.00000, val:156.5, GMT:
+subframe:3, time:38.25000, val:156.5, GMT:
+subframe:3, time:38.50000, val:156.5, GMT:
+subframe:3, time:38.75000, val:156.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x9C00
+subframe:4, time:39.00000, val:156.0, GMT:
+subframe:4, time:39.25000, val:156.0, GMT:
+subframe:4, time:39.50000, val:156.0, GMT:
+subframe:4, time:39.75000, val:156.0, GMT:
+--->找到sync字.0x247 wordCnt:0xA000
+  --->超级帧索引:12
+subframe:1, time:40.00000, val:156.0, GMT:0:41:5
+subframe:1, time:40.25000, val:156.0, GMT:
+subframe:1, time:40.50000, val:156.0, GMT:
+subframe:1, time:40.75000, val:156.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0xA400
+subframe:2, time:41.00000, val:156.0, GMT:
+subframe:2, time:41.25000, val:156.0, GMT:
+subframe:2, time:41.50000, val:156.0, GMT:
+subframe:2, time:41.75000, val:156.0, GMT:
+--->找到sync字.0xA47 wordCnt:0xA800
+subframe:3, time:42.00000, val:156.0, GMT:
+subframe:3, time:42.25000, val:156.0, GMT:
+subframe:3, time:42.50000, val:156.0, GMT:
+subframe:3, time:42.75000, val:156.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0xAC00
+subframe:4, time:43.00000, val:155.5, GMT:
+subframe:4, time:43.25000, val:155.5, GMT:
+subframe:4, time:43.50000, val:155.5, GMT:
+subframe:4, time:43.75000, val:155.5, GMT:
+--->找到sync字.0x247 wordCnt:0xB000
+  --->超级帧索引:13
+subframe:1, time:44.00000, val:155.5, GMT:0:41:9
+subframe:1, time:44.25000, val:155.5, GMT:
+subframe:1, time:44.50000, val:156.0, GMT:
+subframe:1, time:44.75000, val:156.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0xB400
+subframe:2, time:45.00000, val:156.0, GMT:
+subframe:2, time:45.25000, val:156.0, GMT:
+subframe:2, time:45.50000, val:156.0, GMT:
+subframe:2, time:45.75000, val:156.0, GMT:
+--->找到sync字.0xA47 wordCnt:0xB800
+subframe:3, time:46.00000, val:156.0, GMT:
+subframe:3, time:46.25000, val:156.0, GMT:
+subframe:3, time:46.50000, val:156.0, GMT:
+subframe:3, time:46.75000, val:156.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0xBC00
+subframe:4, time:47.00000, val:156.0, GMT:
+subframe:4, time:47.25000, val:156.0, GMT:
+subframe:4, time:47.50000, val:156.0, GMT:
+subframe:4, time:47.75000, val:156.0, GMT:
+--->找到sync字.0x247 wordCnt:0xC000
+  --->超级帧索引:14
+subframe:1, time:48.00000, val:156.0, GMT:0:41:13
+subframe:1, time:48.25000, val:156.0, GMT:
+subframe:1, time:48.50000, val:156.5, GMT:
+subframe:1, time:48.75000, val:156.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0xC400
+subframe:2, time:49.00000, val:156.5, GMT:
+subframe:2, time:49.25000, val:156.5, GMT:
+subframe:2, time:49.50000, val:156.5, GMT:
+subframe:2, time:49.75000, val:156.5, GMT:
+--->找到sync字.0xA47 wordCnt:0xC800
+subframe:3, time:50.00000, val:156.5, GMT:
+subframe:3, time:50.25000, val:156.5, GMT:
+subframe:3, time:50.50000, val:156.5, GMT:
+subframe:3, time:50.75000, val:157.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0xCC00
+subframe:4, time:51.00000, val:157.0, GMT:
+subframe:4, time:51.25000, val:157.0, GMT:
+subframe:4, time:51.50000, val:157.0, GMT:
+subframe:4, time:51.75000, val:157.0, GMT:
+--->找到sync字.0x247 wordCnt:0xD000
+  --->超级帧索引:15
+subframe:1, time:52.00000, val:157.0, GMT:0:41:17
+subframe:1, time:52.25000, val:157.0, GMT:
+subframe:1, time:52.50000, val:157.0, GMT:
+subframe:1, time:52.75000, val:157.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0xD400
+subframe:2, time:53.00000, val:157.5, GMT:
+subframe:2, time:53.25000, val:157.5, GMT:
+subframe:2, time:53.50000, val:157.5, GMT:
+subframe:2, time:53.75000, val:157.5, GMT:
+--->找到sync字.0xA47 wordCnt:0xD800
+subframe:3, time:54.00000, val:157.5, GMT:
+subframe:3, time:54.25000, val:157.5, GMT:
+subframe:3, time:54.50000, val:157.5, GMT:
+subframe:3, time:54.75000, val:157.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0xDC00
+subframe:4, time:55.00000, val:157.5, GMT:
+subframe:4, time:55.25000, val:157.5, GMT:
+subframe:4, time:55.50000, val:157.5, GMT:
+subframe:4, time:55.75000, val:157.5, GMT:
+--->找到sync字.0x247 wordCnt:0xE000
+  --->超级帧索引:0
+subframe:1, time:56.00000, val:158.0, GMT:0:41:21
+subframe:1, time:56.25000, val:158.0, GMT:
+subframe:1, time:56.50000, val:158.0, GMT:
+subframe:1, time:56.75000, val:158.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0xE400
+subframe:2, time:57.00000, val:158.0, GMT:
+subframe:2, time:57.25000, val:158.0, GMT:
+subframe:2, time:57.50000, val:158.0, GMT:
+subframe:2, time:57.75000, val:158.0, GMT:
+--->找到sync字.0xA47 wordCnt:0xE800
+subframe:3, time:58.00000, val:158.0, GMT:
+subframe:3, time:58.25000, val:158.0, GMT:
+subframe:3, time:58.50000, val:158.5, GMT:
+subframe:3, time:58.75000, val:158.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0xEC00
+subframe:4, time:59.00000, val:158.5, GMT:
+subframe:4, time:59.25000, val:158.5, GMT:
+subframe:4, time:59.50000, val:158.5, GMT:
+subframe:4, time:59.75000, val:158.5, GMT:
+--->找到sync字.0x247 wordCnt:0xF000
+  --->超级帧索引:1
+subframe:1, time:60.00000, val:158.5, GMT:0:41:25
+subframe:1, time:60.25000, val:158.5, GMT:
+subframe:1, time:60.50000, val:159.0, GMT:
+subframe:1, time:60.75000, val:159.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0xF400
+subframe:2, time:61.00000, val:159.0, GMT:
+subframe:2, time:61.25000, val:159.0, GMT:
+subframe:2, time:61.50000, val:159.0, GMT:
+subframe:2, time:61.75000, val:159.0, GMT:
+--->找到sync字.0xA47 wordCnt:0xF800
+subframe:3, time:62.00000, val:159.5, GMT:
+subframe:3, time:62.25000, val:159.5, GMT:
+subframe:3, time:62.50000, val:159.5, GMT:
+subframe:3, time:62.75000, val:159.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0xFC00
+subframe:4, time:63.00000, val:159.5, GMT:
+subframe:4, time:63.25000, val:160.0, GMT:
+subframe:4, time:63.50000, val:160.0, GMT:
+subframe:4, time:63.75000, val:160.0, GMT:
+--->找到sync字.0x247 wordCnt:0x10000
+  --->超级帧索引:2
+subframe:1, time:64.00000, val:160.0, GMT:0:41:29
+subframe:1, time:64.25000, val:160.0, GMT:
+subframe:1, time:64.50000, val:160.5, GMT:
+subframe:1, time:64.75000, val:160.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x10400
+subframe:2, time:65.00000, val:160.5, GMT:
+subframe:2, time:65.25000, val:160.5, GMT:
+subframe:2, time:65.50000, val:161.0, GMT:
+subframe:2, time:65.75000, val:161.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x10800
+subframe:3, time:66.00000, val:161.0, GMT:
+subframe:3, time:66.25000, val:161.0, GMT:
+subframe:3, time:66.50000, val:161.0, GMT:
+subframe:3, time:66.75000, val:161.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x10C00
+subframe:4, time:67.00000, val:161.5, GMT:
+subframe:4, time:67.25000, val:161.5, GMT:
+subframe:4, time:67.50000, val:161.5, GMT:
+subframe:4, time:67.75000, val:161.5, GMT:
+--->找到sync字.0x247 wordCnt:0x11000
+  --->超级帧索引:3
+subframe:1, time:68.00000, val:162.0, GMT:0:41:33
+subframe:1, time:68.25000, val:162.0, GMT:
+subframe:1, time:68.50000, val:162.0, GMT:
+subframe:1, time:68.75000, val:162.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x11400
+subframe:2, time:69.00000, val:162.0, GMT:
+subframe:2, time:69.25000, val:162.0, GMT:
+subframe:2, time:69.50000, val:162.5, GMT:
+subframe:2, time:69.75000, val:162.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x11800
+subframe:3, time:70.00000, val:162.5, GMT:
+subframe:3, time:70.25000, val:162.5, GMT:
+subframe:3, time:70.50000, val:162.5, GMT:
+subframe:3, time:70.75000, val:162.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x11C00
+subframe:4, time:71.00000, val:163.0, GMT:
+subframe:4, time:71.25000, val:163.0, GMT:
+subframe:4, time:71.50000, val:163.0, GMT:
+subframe:4, time:71.75000, val:163.0, GMT:
+--->找到sync字.0x247 wordCnt:0x12000
+  --->超级帧索引:4
+subframe:1, time:72.00000, val:163.0, GMT:0:41:37
+subframe:1, time:72.25000, val:163.0, GMT:
+subframe:1, time:72.50000, val:163.0, GMT:
+subframe:1, time:72.75000, val:163.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x12400
+subframe:2, time:73.00000, val:163.5, GMT:
+subframe:2, time:73.25000, val:163.5, GMT:
+subframe:2, time:73.50000, val:163.5, GMT:
+subframe:2, time:73.75000, val:163.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x12800
+subframe:3, time:74.00000, val:163.5, GMT:
+subframe:3, time:74.25000, val:164.0, GMT:
+subframe:3, time:74.50000, val:164.0, GMT:
+subframe:3, time:74.75000, val:164.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x12C00
+subframe:4, time:75.00000, val:164.0, GMT:
+subframe:4, time:75.25000, val:164.0, GMT:
+subframe:4, time:75.50000, val:164.5, GMT:
+subframe:4, time:75.75000, val:164.5, GMT:
+--->找到sync字.0x247 wordCnt:0x13000
+  --->超级帧索引:5
+subframe:1, time:76.00000, val:164.5, GMT:0:41:41
+subframe:1, time:76.25000, val:164.5, GMT:
+subframe:1, time:76.50000, val:164.5, GMT:
+subframe:1, time:76.75000, val:164.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x13400
+subframe:2, time:77.00000, val:165.0, GMT:
+subframe:2, time:77.25000, val:165.0, GMT:
+subframe:2, time:77.50000, val:165.0, GMT:
+subframe:2, time:77.75000, val:165.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x13800
+subframe:3, time:78.00000, val:165.0, GMT:
+subframe:3, time:78.25000, val:165.5, GMT:
+subframe:3, time:78.50000, val:165.5, GMT:
+subframe:3, time:78.75000, val:165.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x13C00
+subframe:4, time:79.00000, val:165.5, GMT:
+subframe:4, time:79.25000, val:166.0, GMT:
+subframe:4, time:79.50000, val:166.0, GMT:
+subframe:4, time:79.75000, val:166.0, GMT:
+--->找到sync字.0x247 wordCnt:0x14000
+  --->超级帧索引:6
+subframe:1, time:80.00000, val:166.0, GMT:0:41:45
+subframe:1, time:80.25000, val:166.0, GMT:
+subframe:1, time:80.50000, val:166.5, GMT:
+subframe:1, time:80.75000, val:166.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x14400
+subframe:2, time:81.00000, val:166.5, GMT:
+subframe:2, time:81.25000, val:166.5, GMT:
+subframe:2, time:81.50000, val:167.0, GMT:
+subframe:2, time:81.75000, val:167.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x14800
+subframe:3, time:82.00000, val:167.0, GMT:
+subframe:3, time:82.25000, val:167.0, GMT:
+subframe:3, time:82.50000, val:167.5, GMT:
+subframe:3, time:82.75000, val:167.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x14C00
+subframe:4, time:83.00000, val:167.5, GMT:
+subframe:4, time:83.25000, val:167.5, GMT:
+subframe:4, time:83.50000, val:168.0, GMT:
+subframe:4, time:83.75000, val:168.0, GMT:
+--->找到sync字.0x247 wordCnt:0x15000
+  --->超级帧索引:7
+subframe:1, time:84.00000, val:168.0, GMT:0:41:49
+subframe:1, time:84.25000, val:168.0, GMT:
+subframe:1, time:84.50000, val:168.5, GMT:
+subframe:1, time:84.75000, val:168.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x15400
+subframe:2, time:85.00000, val:168.5, GMT:
+subframe:2, time:85.25000, val:169.0, GMT:
+subframe:2, time:85.50000, val:169.0, GMT:
+subframe:2, time:85.75000, val:169.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x15800
+subframe:3, time:86.00000, val:169.5, GMT:
+subframe:3, time:86.25000, val:169.5, GMT:
+subframe:3, time:86.50000, val:170.0, GMT:
+subframe:3, time:86.75000, val:170.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x15C00
+subframe:4, time:87.00000, val:170.0, GMT:
+subframe:4, time:87.25000, val:170.5, GMT:
+subframe:4, time:87.50000, val:170.5, GMT:
+subframe:4, time:87.75000, val:171.0, GMT:
+--->找到sync字.0x247 wordCnt:0x16000
+  --->超级帧索引:8
+subframe:1, time:88.00000, val:171.0, GMT:0:41:53
+subframe:1, time:88.25000, val:171.0, GMT:
+subframe:1, time:88.50000, val:171.5, GMT:
+subframe:1, time:88.75000, val:172.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x16400
+subframe:2, time:89.00000, val:172.0, GMT:
+subframe:2, time:89.25000, val:172.5, GMT:
+subframe:2, time:89.50000, val:172.5, GMT:
+subframe:2, time:89.75000, val:172.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x16800
+subframe:3, time:90.00000, val:173.0, GMT:
+subframe:3, time:90.25000, val:173.0, GMT:
+subframe:3, time:90.50000, val:173.5, GMT:
+subframe:3, time:90.75000, val:174.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x16C00
+subframe:4, time:91.00000, val:174.0, GMT:
+subframe:4, time:91.25000, val:174.5, GMT:
+subframe:4, time:91.50000, val:174.5, GMT:
+subframe:4, time:91.75000, val:175.0, GMT:
+--->找到sync字.0x247 wordCnt:0x17000
+  --->超级帧索引:9
+subframe:1, time:92.00000, val:175.0, GMT:0:41:57
+subframe:1, time:92.25000, val:175.5, GMT:
+subframe:1, time:92.50000, val:175.5, GMT:
+subframe:1, time:92.75000, val:176.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x17400
+subframe:2, time:93.00000, val:176.0, GMT:
+subframe:2, time:93.25000, val:176.5, GMT:
+subframe:2, time:93.50000, val:176.5, GMT:
+subframe:2, time:93.75000, val:177.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x17800
+subframe:3, time:94.00000, val:177.0, GMT:
+subframe:3, time:94.25000, val:177.5, GMT:
+subframe:3, time:94.50000, val:177.5, GMT:
+subframe:3, time:94.75000, val:178.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x17C00
+subframe:4, time:95.00000, val:178.0, GMT:
+subframe:4, time:95.25000, val:178.5, GMT:
+subframe:4, time:95.50000, val:179.0, GMT:
+subframe:4, time:95.75000, val:179.0, GMT:
+--->找到sync字.0x247 wordCnt:0x18000
+  --->超级帧索引:10
+subframe:1, time:96.00000, val:179.5, GMT:0:42:1
+subframe:1, time:96.25000, val:179.5, GMT:
+subframe:1, time:96.50000, val:180.0, GMT:
+subframe:1, time:96.75000, val:180.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x18400
+subframe:2, time:97.00000, val:180.5, GMT:
+subframe:2, time:97.25000, val:181.0, GMT:
+subframe:2, time:97.50000, val:181.0, GMT:
+subframe:2, time:97.75000, val:181.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x18800
+subframe:3, time:98.00000, val:182.0, GMT:
+subframe:3, time:98.25000, val:182.0, GMT:
+subframe:3, time:98.50000, val:182.5, GMT:
+subframe:3, time:98.75000, val:183.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x18C00
+subframe:4, time:99.00000, val:183.5, GMT:
+subframe:4, time:99.25000, val:183.5, GMT:
+subframe:4, time:99.50000, val:184.0, GMT:
+subframe:4, time:99.75000, val:184.5, GMT:
+--->找到sync字.0x247 wordCnt:0x19000
+  --->超级帧索引:11
+subframe:1, time:100.00000, val:185.0, GMT:0:42:5
+subframe:1, time:100.25000, val:185.0, GMT:
+subframe:1, time:100.50000, val:185.5, GMT:
+subframe:1, time:100.75000, val:186.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x19400
+subframe:2, time:101.00000, val:186.5, GMT:
+subframe:2, time:101.25000, val:186.5, GMT:
+subframe:2, time:101.50000, val:187.0, GMT:
+subframe:2, time:101.75000, val:187.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x19800
+subframe:3, time:102.00000, val:187.5, GMT:
+subframe:3, time:102.25000, val:188.0, GMT:
+subframe:3, time:102.50000, val:188.5, GMT:
+subframe:3, time:102.75000, val:188.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x19C00
+subframe:4, time:103.00000, val:189.0, GMT:
+subframe:4, time:103.25000, val:189.5, GMT:
+subframe:4, time:103.50000, val:189.5, GMT:
+subframe:4, time:103.75000, val:190.0, GMT:
+--->找到sync字.0x247 wordCnt:0x1A000
+  --->超级帧索引:12
+subframe:1, time:104.00000, val:190.0, GMT:0:42:9
+subframe:1, time:104.25000, val:190.5, GMT:
+subframe:1, time:104.50000, val:191.0, GMT:
+subframe:1, time:104.75000, val:191.0, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1A400
+subframe:2, time:105.00000, val:191.5, GMT:
+subframe:2, time:105.25000, val:191.5, GMT:
+subframe:2, time:105.50000, val:192.0, GMT:
+subframe:2, time:105.75000, val:192.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x1A800
+subframe:3, time:106.00000, val:192.5, GMT:
+subframe:3, time:106.25000, val:192.5, GMT:
+subframe:3, time:106.50000, val:193.0, GMT:
+subframe:3, time:106.75000, val:193.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1AC00
+subframe:4, time:107.00000, val:193.0, GMT:
+subframe:4, time:107.25000, val:193.5, GMT:
+subframe:4, time:107.50000, val:193.5, GMT:
+subframe:4, time:107.75000, val:194.0, GMT:
+--->找到sync字.0x247 wordCnt:0x1B000
+  --->超级帧索引:13
+subframe:1, time:108.00000, val:194.0, GMT:0:42:13
+subframe:1, time:108.25000, val:194.0, GMT:
+subframe:1, time:108.50000, val:194.5, GMT:
+subframe:1, time:108.75000, val:194.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1B400
+subframe:2, time:109.00000, val:195.0, GMT:
+subframe:2, time:109.25000, val:195.0, GMT:
+subframe:2, time:109.50000, val:195.5, GMT:
+subframe:2, time:109.75000, val:195.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x1B800
+subframe:3, time:110.00000, val:195.5, GMT:
+subframe:3, time:110.25000, val:196.0, GMT:
+subframe:3, time:110.50000, val:196.0, GMT:
+subframe:3, time:110.75000, val:196.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1BC00
+subframe:4, time:111.00000, val:196.5, GMT:
+subframe:4, time:111.25000, val:197.0, GMT:
+subframe:4, time:111.50000, val:197.0, GMT:
+subframe:4, time:111.75000, val:197.5, GMT:
+--->找到sync字.0x247 wordCnt:0x1C000
+  --->超级帧索引:14
+subframe:1, time:112.00000, val:197.5, GMT:0:42:17
+subframe:1, time:112.25000, val:198.0, GMT:
+subframe:1, time:112.50000, val:198.0, GMT:
+subframe:1, time:112.75000, val:198.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1C400
+subframe:2, time:113.00000, val:198.5, GMT:
+subframe:2, time:113.25000, val:199.0, GMT:
+subframe:2, time:113.50000, val:199.5, GMT:
+subframe:2, time:113.75000, val:199.5, GMT:
+--->找到sync字.0xA47 wordCnt:0x1C800
+subframe:3, time:114.00000, val:200.0, GMT:
+subframe:3, time:114.25000, val:200.0, GMT:
+subframe:3, time:114.50000, val:200.5, GMT:
+subframe:3, time:114.75000, val:201.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1CC00
+subframe:4, time:115.00000, val:201.0, GMT:
+subframe:4, time:115.25000, val:201.5, GMT:
+subframe:4, time:115.50000, val:202.0, GMT:
+subframe:4, time:115.75000, val:202.0, GMT:
+--->找到sync字.0x247 wordCnt:0x1D000
+  --->超级帧索引:15
+subframe:1, time:116.00000, val:202.5, GMT:0:42:21
+subframe:1, time:116.25000, val:203.0, GMT:
+subframe:1, time:116.50000, val:203.5, GMT:
+subframe:1, time:116.75000, val:203.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1D400
+subframe:2, time:117.00000, val:204.0, GMT:
+subframe:2, time:117.25000, val:204.5, GMT:
+subframe:2, time:117.50000, val:204.5, GMT:
+subframe:2, time:117.75000, val:205.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x1D800
+subframe:3, time:118.00000, val:205.5, GMT:
+subframe:3, time:118.25000, val:205.5, GMT:
+subframe:3, time:118.50000, val:206.0, GMT:
+subframe:3, time:118.75000, val:206.5, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1DC00
+subframe:4, time:119.00000, val:207.0, GMT:
+subframe:4, time:119.25000, val:207.0, GMT:
+subframe:4, time:119.50000, val:207.5, GMT:
+subframe:4, time:119.75000, val:208.0, GMT:
+--->找到sync字.0x247 wordCnt:0x1E000
+  --->超级帧索引:0
+subframe:1, time:120.00000, val:208.0, GMT:0:42:25
+subframe:1, time:120.25000, val:208.5, GMT:
+subframe:1, time:120.50000, val:209.0, GMT:
+subframe:1, time:120.75000, val:209.5, GMT:
+--->找到sync字.0x5B8 wordCnt:0x1E400
+subframe:2, time:121.00000, val:209.5, GMT:
+subframe:2, time:121.25000, val:210.0, GMT:
+subframe:2, time:121.50000, val:210.5, GMT:
+subframe:2, time:121.75000, val:211.0, GMT:
+--->找到sync字.0xA47 wordCnt:0x1E800
+subframe:3, time:122.00000, val:211.0, GMT:
+subframe:3, time:122.25000, val:211.5, GMT:
+subframe:3, time:122.50000, val:212.0, GMT:
+subframe:3, time:122.75000, val:212.0, GMT:
+--->找到sync字.0xDB8 wordCnt:0x1EC00
+subframe:4, time:123.00000, val:212.5, GMT:
+subframe:4, time:123.25000, val:213.0, GMT:
+subframe:4, time:123.50000, val:213.0, GMT:
+subframe:4, time:123.75000, val:213.5, GMT:
+--->找到sync字.0x247 wordCnt:0x1F000
+  --->超级帧索引:1
+subframe:1, time:124.00000, val:214.0, GMT:0:42:29
+subframe:1, time:124.25000, val:214.0, GMT:
+subframe:1, time:124.50000, val:214.5, GMT:
+subframe:1, time:124.75000, val:214.5, GMT:
+->找到last sync字. wordCnt:0x59C00---word:0xDB8
+文件结束。
+
+ The length of data is 737280.
+ Parameter "GS3" write to CSV file: "data/output_data.csv".
+
