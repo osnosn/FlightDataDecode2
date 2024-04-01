@@ -46,61 +46,72 @@ fn main() {
     let mut word_cnt2 = 0; //前一个sync字的 word 计数位置
     let mut bit_cnt = 0; //12bit中 当前bit位置0-11
     let mut word_12bit: u16 = 0; //12bit 目标缓存
+    let mut mark = -1; //找到sync1的bit_cnt, 用于判断是否对齐
 
     //println!("Hexadecimal representation:");
     println!("  说明: word=12bit, bits=0-11, len=(12bit word)间隔,");
 
-    //GetBit::new()的第二个参数是order: false=high,bit7->bit0, true=low,bit0->bit7
-    let MyBits = GetBit::new(buf, args.low_first);
+    //GetBit::new()的第二个参数是order: true=high,bit7->bit0, false=low,bit0->bit7
+    let MyBits = GetBit::new(buf, args.high_first);
     for bit in MyBits {
-        // move_right: true=">>", false="<<"
-        if args.move_right {
-            word_12bit >>= 1;
-        } else {
+        // move_left: true="<<", false=">>"
+        if args.move_left {
             word_12bit <<= 1;
+        } else {
+            word_12bit >>= 1;
         }
         if bit {
-            if args.move_right {
-                word_12bit |= 0x800;
-            } else {
+            if args.move_left {
                 word_12bit |= 0x1;
+            } else {
+                word_12bit |= 0x800;
             }
         }
         word_12bit &= 0xfff;
 
-        // 0x247,0x5B8,0xA47,0xDB8
-        if word_12bit == 0x247 {
-            println!(
-                "--->Mark sync1   .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
-                word_cnt,
-                bit_cnt,
-                word_cnt - word_cnt2,
-            );
-            word_cnt2 = word_cnt;
-        } else if word_12bit == 0x5B8 {
-            println!(
-                "--->Mark sync 2  .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
-                word_cnt,
-                bit_cnt,
-                word_cnt - word_cnt2,
-            );
-            word_cnt2 = word_cnt;
-        } else if word_12bit == 0xA47 {
-            println!(
-                "--->Mark sync  3 .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
-                word_cnt,
-                bit_cnt,
-                word_cnt - word_cnt2,
-            );
-            word_cnt2 = word_cnt;
-        } else if word_12bit == 0xDB8 {
-            println!(
-                "--->Mark sync   4.at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
-                word_cnt,
-                bit_cnt,
-                word_cnt - word_cnt2,
-            );
-            word_cnt2 = word_cnt;
+        if mark < 0 && word_12bit == 0x247 {
+            //找到sync1, 记录bit_cnt
+            mark = bit_cnt;
+        }
+        if args.no_align || bit_cnt == mark {
+            // 0x247,0x5B8,0xA47,0xDB8
+            if word_12bit == 0x247 {
+                println!(
+                    "--->Mark sync1   .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
+                    word_cnt,
+                    bit_cnt,
+                    word_cnt - word_cnt2,
+                );
+                word_cnt2 = word_cnt;
+            } else if word_12bit == 0x5B8 {
+                println!(
+                    "--->Mark sync 2  .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
+                    word_cnt,
+                    bit_cnt,
+                    word_cnt - word_cnt2,
+                );
+                word_cnt2 = word_cnt;
+            } else if word_12bit == 0xA47 {
+                println!(
+                    "--->Mark sync  3 .at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
+                    word_cnt,
+                    bit_cnt,
+                    word_cnt - word_cnt2,
+                );
+                word_cnt2 = word_cnt;
+            } else if word_12bit == 0xDB8 {
+                println!(
+                    "--->Mark sync   4.at 0x{:<5X}word + {:>02}bits,len:0x{:<X}",
+                    word_cnt,
+                    bit_cnt,
+                    word_cnt - word_cnt2,
+                );
+                word_cnt2 = word_cnt;
+            }
+        }
+        if (word_cnt - word_cnt2) > 0x1000 {
+            //1024=0x400,2048=0x800,4096=0x1000,
+            mark = -1; //间隔太大都没找到sync1，重置mark
         }
         bit_cnt += 1;
         if bit_cnt >= 12 {
@@ -112,6 +123,7 @@ fn main() {
                 if fff_cnt > 64 {
                     //发现超过64个 0xfff 的值,对于12bit来说，就是连续的0b1出现了很长了。
                     println!("---> 连续出现 words 0xFFF 的个数: 0x{:<5X}.", fff_cnt);
+                    mark = -1; //超过64个0xfff，重置 mark
                 }
                 fff_cnt = 0;
             }
@@ -138,15 +150,15 @@ pub struct GetBit {
     pub len: usize,      //buf的总字节数, ttl bytes
     pub byte_cnt: usize, //byte 计数
     pub bit: u8,         //bit 掩码
-    pub order: bool,     //low_first: false=high,bit7->bit0, true=low,bit0->bit7
+    pub order: bool,     //high_first: true=high,bit7->bit0, false=low,bit0->bit7
 }
 impl GetBit {
     pub fn new(buf: Vec<u8>, order: bool) -> Self {
         let bit;
         if order {
-            bit = 0x01;
-        } else {
             bit = 0x80;
+        } else {
+            bit = 0x01;
         }
         Self {
             len: buf.len(),
@@ -172,15 +184,15 @@ impl Iterator for GetBit {
             result = true;
         }
         if self.order {
-            self.bit <<= 1;
-        } else {
             self.bit >>= 1;
+        } else {
+            self.bit <<= 1;
         }
         if self.bit == 0 {
             if self.order {
-                self.bit = 0x01;
-            } else {
                 self.bit = 0x80;
+            } else {
+                self.bit = 0x01;
             }
             self.byte_cnt += 1;
         }
@@ -195,10 +207,12 @@ fn showHelp() {
     println!("      --help     详细的帮助信息");
     println!("      -f /path/raw.dat    指定raw文件");
     println!("      -c 50000  扫描(12bit words)的数量, 0:扫描整个文件, 默认=50000,");
-    println!("     默认情况:无\"--low --right\"参数, ");
-    println!("         读取raw文件的每个8bit字节后,取bit顺序, 先取高位, bit7->bit0");
-    println!("         取完bit后, 拼接12bit word时,从低位移入,移位方向left\"<<\"");
-    println!("      --low     读取raw文件的每个8bit字节后,取bit顺序, 先取低位, bit0->bit7");
-    println!("      --right   取完bit后, 拼接12bit word时，从高位移入,移位方向right\">>\"");
+    println!("      --noalign    扫描时,不考虑是否对齐12bit");
+    println!("     默认情况:无\"--high --left\"参数, 通常bitstream文件是这个处理方式。");
+
+    println!("         读取raw文件的每个8bit字节后,取bit顺序, 先取低位, bit0->bit7");
+    println!("         取完bit后, 拼接12bit word时,从高位移入,移位方向right\">>\"");
+    println!("      --high    读取raw文件的每个8bit字节后,取bit顺序, 先取高位, bit7->bit0");
+    println!("      --left    取完bit后, 拼接12bit word时，从低位移入,移位方向left\"<<\"");
     println!("");
 }

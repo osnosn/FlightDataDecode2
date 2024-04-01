@@ -148,8 +148,8 @@ def main(move='>>', order='high'):
                 FFF_cnt +=1
             else:
                 if FFF_cnt > 64:
-                    print('---> continue {:<5d} words 0xFFF, reset mark.'.format(FFF_cnt) )
-                    mark=-1  #重置，重新找 sync1
+                    print('---> continue {0:<5d},0x{0:<5X} words 0xFFF, reset mark.'.format(FFF_cnt) )
+                    mark=-1  #超过64个0xfff, 重置，重新找 sync1
                 FFF_cnt  =0
             if word_cnt > 500000:  #测试用，暂时读500k就结束
                 print(' ---文件已经扫描500k, 结束---')
@@ -188,7 +188,7 @@ def main(move='>>', order='high'):
                 print('==>Found sync4.DB8,at x{:<5X} word + {:02d}bit, len:x{:<5X}'.format(word_cnt,ii,word_cnt-word_cnt2))
                 #print('==>Found sync4.DB8,at x%X word(12bit)+%dbit,len:x%X'%(word_cnt,ii,word_cnt-word_cnt2))
                 word_cnt2=word_cnt
-        if word_cnt-word_cnt2 >4096:  #256=0x100,512=0x200,512*4=0x800, 1024=0x400, 4096=0x1000
+        if word_cnt-word_cnt2 >0x1000:  #1024=0x400,2048=0x800,4096=0x1000
             # separation > 1024 word, Reset Mark.
             mark=-1  #重置，重新找 sync1
             pass
@@ -295,8 +295,8 @@ if __name__=='__main__':
         print(FNAME,'Not a file')
         exit()
 
-    main('<<','high')
+    #main('<<','high')
     #main('<<','low')
     #main('>>','high')
-    #main('>>','low')
+    main('>>','low')   #通常是这个处理顺序'>>',low.
 
