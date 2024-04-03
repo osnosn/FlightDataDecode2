@@ -14,6 +14,7 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
   - `dump_raw_bitstream` 扫描raw文件，通过 sync 同步字出现的顺序和间隔，确定是否 bitstream格式。   
 * qar_decode.  解码个别参数。   
   - `qar_decode5`   
+* qar_decode_lua.  解码个别参数。   
   - `qar_decode6` 嵌入lua脚本测试   
 
 data/ 目录，有示例数据。  
