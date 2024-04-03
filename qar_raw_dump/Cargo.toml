@@ -1,6 +1,6 @@
 [package]
 name = "qar_raw_dump"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 publish = ["rsproxy"]
 authors = ["osnosn <osnosn@126.com>", "LLGZ <LLGZ@csair.com>"]

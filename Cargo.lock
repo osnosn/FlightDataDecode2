@@ -171,7 +171,15 @@ dependencies = [
 
 [[package]]
 name = "qar_decode"
-version = "0.2.0"
+version = "0.2.2"
+dependencies = [
+ "lexopt",
+ "memmap2",
+]
+
+[[package]]
+name = "qar_decode_lua"
+version = "0.2.2"
 dependencies = [
  "lexopt",
  "memmap2",
@@ -180,7 +188,7 @@ dependencies = [
 
 [[package]]
 name = "qar_raw_dump"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "lexopt",
 ]

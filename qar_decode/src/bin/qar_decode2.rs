@@ -10,20 +10,20 @@ use std::io::{BufReader, Read, Write};
 //use std::process;
 //use std::fs::read_to_string;
 
-#[path = "../CmdLineArgs_aligned.rs"]
-mod CmdLineArgs_aligned;
+#[path = "../CmdLineArgs.rs"]
+mod CmdLineArgs;
 
 fn main() {
     let args;
-    match CmdLineArgs_aligned::parse_args() {
+    match CmdLineArgs::parse_args() {
         Ok(tmp) => args = tmp,
-        _ => {
-            showHelp();
+        Err(err) => {
+            println!("Command line parse ERR.\r\n{err}");
             return ();
         }
     }
     if args.help || args.help2 {
-        showHelp();
+        showHelp(args.bin_name);
         return ();
     }
 
@@ -144,7 +144,7 @@ fn main() {
             res_B = n21_res[1];
         }
         _ => {
-            showHelp();
+            showHelp(args.bin_name);
             return ();
         }
     };
@@ -264,8 +264,8 @@ fn find_sync(
         *byte_cnt += 1;
     }
 }
-fn showHelp() {
-    println!("Usage: qar_decode [1|2|3|4|5|6] [-h | --help]");
+fn showHelp(bin_name: String) {
+    println!("Usage: {bin_name} [1|2|3|4|5|6] [-h | --help]");
     println!("   Detail:");
     println!("      -h        简略的命令行帮助");
     println!(" 说明: ");

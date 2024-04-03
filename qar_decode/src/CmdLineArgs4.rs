@@ -1,4 +1,5 @@
 pub struct Args {
+    pub bin_name: String, //当前程序名
     pub help: bool,
     pub help2: bool,
     pub mem: bool,
@@ -16,6 +17,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
     let mut csvfile = None;
     let mut cmd = None;
     let mut parser = lexopt::Parser::from_env();
+    let bin_name = parser.bin_name().unwrap_or("myapp").to_string();
     while let Some(arg) = parser.next()? {
         match arg {
             Short('r') => {
@@ -48,13 +50,14 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
                 println!("{:#?}", arg.unexpected());
                 //println!("Usage: dump_raw_aligned -f raw.dat [-h | --help]");
                 //println!("Usage: dump_raw_aligned [1|2|3|4|5|....] [-h | --help]");
-                super::showHelp();
+                super::showHelp(bin_name);
                 std::process::exit(0);
             }
         }
     }
 
     Ok(Args {
+        bin_name, //当前程序名
         help,
         help2,
         mem,

@@ -15,13 +15,13 @@ fn main() {
     let args;
     match CmdLineArgs_aligned::parse_args() {
         Ok(tmp) => args = tmp,
-        _ => {
-            showHelp();
+        Err(err) => {
+            println!("Command line parse ERR.\r\n{err}");
             return ();
         }
     }
     if args.help || args.help2 || args.rawfile.len() < 2 {
-        showHelp();
+        showHelp(args.bin_name);
         return ();
     }
 
@@ -200,8 +200,8 @@ impl Iterator for GetBit {
     }
 }
 
-fn showHelp() {
-    println!("Usage: dump_raw_aligned [-h | --help] [-m] [-c 50000] -f raw.dat");
+fn showHelp(bin_name: String) {
+    println!("Usage: {bin_name} [-h | --help] [-m] [-c 50000] -f raw.dat");
     println!("   Detail:");
     println!("      -h        简略的命令行帮助");
     println!("      --help     详细的帮助信息");

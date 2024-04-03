@@ -1,17 +1,16 @@
 [package]
-name = "qar_decode"
+name = "qar_decode_lua"
 version = "0.2.2"
 edition = "2021"
+publish = ["rsproxy"]
 authors = ["osnosn <osnosn@126.com>", "LLGZ <LLGZ@csair.com>"]
-description = "Use PRM decode Aligned raw.dat"
+description = "Use PRM decode Aligned raw.dat, with lua."
+rust-version = "1.71"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 lexopt = { version = "0.3.0", registry = "rsproxy" }
 memmap2 = { version = "0.9.4", registry = "rsproxy" }
-
-#[profile.release]
-#strip = true
-#opt-level = "s"
-#lto = true
+mlua = { version = "0.9.6", registry = "rsproxy", features= ["luajit52","vendored"] }
+#mlua = { version = "0.9.6", registry = "rsproxy", features= ["lua54","vendored"] }

@@ -2,12 +2,8 @@ pub struct Args {
     pub bin_name: String, //当前程序名
     pub help: bool,
     pub help2: bool,
-    pub rawfile: String,  //raw文件名
-    pub rawlen: usize,    //扫描的字节数
-    pub move_left: bool,  //拼接方向,
-    pub high_first: bool, //先取低位
-    pub no_align: bool,   //扫描时,是否bit对齐
-    pub cmd: String,      //未使用
+    pub rawfile: String,
+    pub cmd: String,
 }
 pub fn parse_args() -> Result<Args, lexopt::Error> {
     use lexopt::prelude::*;
@@ -15,10 +11,6 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
     let mut help = false;
     let mut help2 = false;
     let mut rawfile = None;
-    let mut rawlen: usize = 50000; //默认5k
-    let mut move_left = false;
-    let mut high_first = false;
-    let mut no_align = false;
     let mut cmd = None;
     let mut parser = lexopt::Parser::from_env();
     let bin_name = parser.bin_name().unwrap_or("myapp").to_string();
@@ -27,22 +19,6 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
             Short('f') => {
                 // -f
                 rawfile = Some(parser.value()?.string()?);
-            }
-            Short('c') => {
-                // -c
-                rawlen = parser.value()?.parse()?;
-            }
-            Long("left") => {
-                // -m
-                move_left = true;
-            }
-            Long("high") => {
-                // -m
-                high_first = true;
-            }
-            Long("noalign") => {
-                // -m
-                no_align = true;
             }
             Short('h') => {
                 // -h
@@ -61,6 +37,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
             _ => {
                 println!("{:#?}", arg.unexpected());
                 //println!("Usage: dump_raw_aligned -f raw.dat [-h | --help]");
+                //println!("Usage: dump_raw_aligned [1|2|3|4|5|....]");
                 super::showHelp(bin_name);
                 std::process::exit(0);
             }
@@ -72,10 +49,6 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         help,
         help2,
         rawfile: rawfile.unwrap_or("data/raw.dat".to_string()), //缺省值为 "raw.dat"
-        rawlen,
-        move_left,
-        high_first,
-        no_align,
-        cmd: cmd.unwrap_or("".to_string()), //缺省值为 ""
+        cmd: cmd.unwrap_or("".to_string()),                     //缺省值为 ""
     })
 }

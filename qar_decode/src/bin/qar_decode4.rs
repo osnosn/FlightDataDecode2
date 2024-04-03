@@ -11,20 +11,20 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-#[path = "../CmdLineArgs_aligned4.rs"]
-mod CmdLineArgs_aligned;
+#[path = "../CmdLineArgs4.rs"]
+mod CmdLineArgs;
 
 fn main() {
     let args;
-    match CmdLineArgs_aligned::parse_args() {
+    match CmdLineArgs::parse_args() {
         Ok(tmp) => args = tmp,
-        _ => {
-            showHelp();
+        Err(err) => {
+            println!("Command line parse ERR.\r\n{err}");
             return ();
         }
     }
     if args.help || args.help2 {
-        showHelp();
+        showHelp(args.bin_name);
         return ();
     }
 
@@ -189,7 +189,7 @@ fn main() {
             [signed, res_A, res_B] = gmts_res;
         }
         _ => {
-            showHelp();
+            showHelp(args.bin_name);
             return ();
         }
     };
@@ -412,9 +412,9 @@ fn find_sync(
         *byte_cnt += 1;
     }
 }
-fn showHelp() {
+fn showHelp(bin_name: String) {
     println!(
-        "Usage: qar_decode [-r data/raw.dat] [-w data/output_data.csv] [-h | --help] [1|2|3|4|5|6|7|8|h|m|s]"
+        "Usage: {bin_name} [-r data/raw.dat] [-w data/output_data.csv] [-h | --help] [1|2|3|4|5|6|7|8|h|m|s]"
     );
     println!("   Detail:");
     println!("      -h        简略的命令行帮助");
