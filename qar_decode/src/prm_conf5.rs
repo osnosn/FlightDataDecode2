@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
 pub struct PrmConf {
-    pub words: Vec<Vec<usize>>,
-    pub res: [f32; 3],
-    pub supframe: usize,
+    pub words: Vec<Vec<usize>>, // [ subframe,word,lsb,msb,targetBit]
+    // subframe=0,为 ALL, 即,4个subframe都有记录
+    // targetBit=0,为默认拼接方式
+    pub supframe: usize, //0=非超级帧参数
+    pub res: [f32; 3],   //signed, 系数 A,B; 转换公式, A+B*X
+                         //signed: true=1.0,有符号; false=0.0,无符号; }
 }
 impl PrmConf {
     pub fn new() -> HashMap<String, PrmConf> {

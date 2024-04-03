@@ -9,10 +9,12 @@ pub struct PrmConf {
 }
 ///单个记录参数的配置
 pub struct Param {
-    pub words: Vec<Vec<usize>>,
-    pub superframe: usize,
-    pub res: [f32; 2],
-    pub signed: bool, //true=1, false=0
+    pub words: Vec<Vec<usize>>, // [ subframe,word,lsb,msb,targetBit]
+    // subframe=0,为 ALL, 即,4个subframe都有记录
+    // targetBit=0,为默认拼接方式
+    pub superframe: usize, //0=非超级帧参数
+    pub res: [f32; 2],     //系数 A,B; 转换公式, A+B*X
+    pub signed: bool,      //true=1,有符号; false=0,无符号;
     pub RecFormat: RecFormat,
     pub ConvConfig: Vec<u8>, // 1443 BCD
     pub Unit: String,        //计量单位。解码过程未使用,可以不填写
@@ -34,6 +36,8 @@ impl PrmConf {
         let vrtg = Param {
             words: vec![
                 // [ subframe,word,lsb,msb,targetBit],
+                // subframe=0,为 ALL, 即,4个subframe都有记录
+                // targetBit=0,为默认拼接方式
                 vec![0, 2, 1, 12, 0],
                 vec![0, 34, 1, 12, 0],
                 vec![0, 66, 1, 12, 0],
@@ -54,7 +58,7 @@ impl PrmConf {
             //resA, resB
             res: [-3.37538, 0.00228938],
             signed: false,
-            superframe: 0,
+            superframe: 0, //0=非超级帧参数
             RecFormat: RecFormat::BNR,
             ConvConfig: vec![],
             Unit: "G".to_string(),
