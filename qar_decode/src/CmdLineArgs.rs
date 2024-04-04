@@ -7,13 +7,19 @@ pub struct Args {
 }
 pub fn parse_args() -> Result<Args, lexopt::Error> {
     use lexopt::prelude::*;
+    use std::path::Path;
 
     let mut help = false;
     let mut help2 = false;
     let mut rawfile = None;
     let mut cmd = None;
     let mut parser = lexopt::Parser::from_env();
-    let bin_name = parser.bin_name().unwrap_or("myapp").to_string();
+    //let bin_name = parser.bin_name().unwrap_or("myapp").to_string();
+    let bin_name = Path::new(parser.bin_name().unwrap_or("myApp"))
+        .file_name()
+        .ok_or_else(|| "Error获取basename")?
+        .to_string_lossy()
+        .to_string();
     while let Some(arg) = parser.next()? {
         match arg {
             Short('f') => {

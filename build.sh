@@ -12,8 +12,10 @@
    echo target x86_64-unknown-linux-gnu
    RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-gnu
    echo target x86_64-unknown-linux-musl
+   # mlua, luajit52,不支持 musl; lua54可以支持;
    RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-musl --workspace --exclude qar_decode_lua
    echo target i686-pc-windows-gnu
+   # mlua, luajit52,不支持 win32; lua54可以支持;
    RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target i686-pc-windows-gnu --workspace --exclude qar_decode_lua
    echo target x86_64-pc-windows-gnu
    RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-pc-windows-gnu
