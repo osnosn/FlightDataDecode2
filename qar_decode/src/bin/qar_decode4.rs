@@ -29,7 +29,12 @@ fn main() {
     }
 
     // 读取的文件名
-    let filename_read = args.rawfile.as_str();
+    let filename_read;
+    if args.rawfile.len() < 2 {
+        filename_read = "data/raw.dat";
+    } else {
+        filename_read = args.rawfile.as_str();
+    }
     // 写入的文件名
     let filename_write = args.csvfile.as_str();
     // 打开数据文件

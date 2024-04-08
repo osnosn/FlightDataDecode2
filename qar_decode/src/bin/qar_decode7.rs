@@ -1,10 +1,12 @@
 #![allow(non_snake_case)]
 //! 使用mmap把raw文件映射到内存，然后再解码多个参数中的一个。  
 //! 多个解码配置写死在程序中。一次只能解码一个参数。  
+//! 所有的解码配置集中在 prm_conf::PrmConf 中。
 //! 增加命令行参数，显示内存占用，增加同步字顺序警告。  
 //! 增加subframe判断，处理了符号位。  
 //! 更改使用hashmap保存配置。配置中增加targetBit。  
 //! 增加superFrame配置。尝试解码超级帧参数。  
+//! 增加BCD格式的处理。
 //!    author: osnosn@126.com  OR  LLGZ@csair.com  
 
 use memmap2::Mmap;
@@ -12,11 +14,13 @@ use memmap2::MmapOptions;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Write;
+#[cfg(target_os = "linux")]
+use std::process;
 
 #[path = "../CmdLineArgs4.rs"]
 mod CmdLineArgs;
 
-#[path = "../prm_conf5.rs"]
+#[path = "../prm_conf320.rs"]
 mod prm_conf;
 
 fn main() {
@@ -36,7 +40,7 @@ fn main() {
     // 读取的文件名
     let filename_read;
     if args.rawfile.len() < 2 {
-        filename_read = "data/raw.dat";
+        filename_read = "data/raw320.dat";
     } else {
         filename_read = args.rawfile.as_str();
     }
@@ -59,7 +63,7 @@ fn main() {
     let mut wfile = File::create(filename_write)
         .expect(format!("创建文件失败:\"{}\"", filename_write).as_str());
     wfile
-        .write_all("time,value,gmt_time\r\n".as_bytes())
+        .write_all("time,value,utc_time\r\n".as_bytes())
         .expect("写入失败");
 
     //参数配置,创建
@@ -67,56 +71,51 @@ fn main() {
 
     // 参数的配置,
     let prm_words; //取值位置的配置
-    let prm_supframe; //超级帧
+    let prm_superframe; //超级帧
     let res_A; //系数A
     let res_B; //系数B
-    let signed; //是否带符号位 0.0=N, 1.0=Y,
+               //let signed; //是否带符号位 false=N, true=Y,
     let prm_name; //参数名称
     prm_name = match &args.cmd as &str {
         "" | "1" => "VRTG",
-        "2" => "ALTSTD",
-        "3" => "GS3",
+        "2" => "ALT_BARO",
+        "3" => "GPS_GS_C",
         "4" => "PITCH",
-        "5" => "N11",
-        "6" => "N21",
-        "7" => "SAT",
-        "8" => "AILERON",
-        "h" => "GMTH",
-        "m" => "GMTM",
-        "s" => "GMTS",
-        "sup" => "SUP_COUNTER",
-        "day" => {
-            println!("这个参数是BCD编码，本程序未实现，取值正确，但转换后的工程值不正确");
-            "DAY"
-        }
+        "5" => "N1_1",
+        "6" => "SAT",
+        "7" => "CAS",
+        "h" => "UTCH",
+        "m" => "UTCM",
+        "s" => "UTCS",
+        "sup" => "SuperFrameCounter",
+        "day" => "DAY",
         _ => {
             showHelp(args.bin_name);
             return ();
         }
     };
-    prm_words = prm_conf
+    let word_per_sec = prm_conf.WordPerSec;
+    let prm_param = prm_conf
+        .param
         .get(prm_name)
-        .expect(format!("参数没找到:\"{}\"", prm_name).as_str())
-        .words
-        .clone();
-    prm_supframe = prm_conf
-        .get(prm_name)
-        .expect(format!("参数没找到:\"{}\"", prm_name).as_str())
-        .supframe;
-    [signed, res_A, res_B] = prm_conf
-        .get(prm_name)
-        .expect(format!("参数没找到:\"{}\"", prm_name).as_str())
-        .res;
+        .expect(format!("参数没找到:\"{}\"", prm_name).as_str());
+    prm_words = prm_param.words.clone();
+    prm_superframe = prm_param.superframe;
+    //signed = prm_param.signed;
+    [res_A, res_B] = prm_param.res;
 
     //每次都要取值的参数配置
-    let sup_counter = prm_conf
-        .get("SUP_COUNTER")
-        .expect("参数没找到:'SUP_COUNTER'")
-        .words[0]
-        .clone();
-    let frame_hour = prm_conf.get("GMTH").expect("参数没找到:'GMTH'").words[0].clone();
-    let frame_min = prm_conf.get("GMTM").expect("参数没找到:'GMTM'").words[0].clone();
-    let frame_sec = prm_conf.get("GMTS").expect("参数没找到:'GMTS'").words[0].clone();
+    let prm_superFrameCnt_prm = prm_conf
+        .param
+        .get("SuperFrameCounter")
+        .expect("参数没找到:'SuperFrameCounter'");
+    let prm_superFrameCnt = prm_superFrameCnt_prm.words[0].clone();
+    let frame_hour_prm = prm_conf.param.get("UTCH").expect("参数没找到:'UTCH'");
+    let frame_hour = frame_hour_prm.words[0].clone();
+    let frame_min_prm = prm_conf.param.get("UTCM").expect("参数没找到:'UTCM'");
+    let frame_min = frame_min_prm.words[0].clone();
+    let frame_sec_prm = prm_conf.param.get("UTCS").expect("参数没找到:'UTCS'");
+    let frame_sec = frame_sec_prm.words[0].clone();
 
     // 参数的 每秒记录个数
     // 这个值，算的很粗糙，可能会不正确 !!!!!
@@ -137,7 +136,6 @@ fn main() {
     let mut value: f32; //解码后的工程值
     let mut frame_time: f32; //frame时间轴
     let mut frame_time_string: String; //frame时间
-    let word_per_sec = 1024;
     println!("Hexadecimal representation 十六进制表示:");
     loop {
         if find_sync(
@@ -157,7 +155,13 @@ fn main() {
             println!("-> wordCnt/(word/sec):{:?}---subframeCnt:{:?}", word_cnt/word_per_sec, subframe_cnt);
         }
         */
-        if let Some(val) = get_dword_raw(&sup_counter, 0.0, byte_cnt, subframe_idx, &buf) {
+        if let Some(val) = get_dword_raw(
+            prm_superFrameCnt_prm,
+            &prm_superFrameCnt,
+            byte_cnt,
+            subframe_idx,
+            &buf,
+        ) {
             supcount_idx = val; //超级帧索引
             if word_cnt < 128000 {
                 println!("  --->超级帧索引:{}", supcount_idx);
@@ -165,23 +169,30 @@ fn main() {
         }
 
         //超级帧判断
-        if prm_supframe <= 0 || (prm_supframe as i32) == (supcount_idx + 1) {
-            //取GMT时间，H:M:S
+        if prm_superframe <= 0 || (prm_superframe as i32) == (supcount_idx + 1) {
+            //取UTC时间，H:M:S
             frame_time_string = String::from("");
-            if let Some(val) = get_dword_raw(&frame_hour, 0.0, byte_cnt, subframe_idx, &buf) {
+            if let Some(val) =
+                get_dword_raw(frame_hour_prm, &frame_hour, byte_cnt, subframe_idx, &buf)
+            {
                 frame_time_string = format!("{:02}:", val);
             }
-            if let Some(val) = get_dword_raw(&frame_min, 0.0, byte_cnt, subframe_idx, &buf) {
+            if let Some(val) =
+                get_dword_raw(frame_min_prm, &frame_min, byte_cnt, subframe_idx, &buf)
+            {
                 frame_time_string.push_str(format!("{:02}:", val).as_str());
             }
-            if let Some(val) = get_dword_raw(&frame_sec, 0.0, byte_cnt, subframe_idx, &buf) {
+            if let Some(val) =
+                get_dword_raw(frame_sec_prm, &frame_sec, byte_cnt, subframe_idx, &buf)
+            {
                 frame_time_string.push_str(format!("{:02}", val).as_str());
             }
 
             let mut rate_cnt: f32 = 0.0;
             let mut dword_raw: i32;
+            //按记录组循环. 单个记录组为一个完整的记录
             'SFrame: for prm_set in &prm_words {
-                match get_dword_raw(prm_set, signed, byte_cnt, subframe_idx, &buf) {
+                match get_dword_raw(prm_param, &prm_set, byte_cnt, subframe_idx, &buf) {
                     Some(val) => dword_raw = val,
                     None => {
                         //None 就是subframe不匹配，所以无需 rate_cnt += 1.0;
@@ -192,7 +203,7 @@ fn main() {
                 frame_time = (subframe_cnt as f32) + (rate_cnt / param_rate);
                 if word_cnt < 128000 {
                     println!(
-                        "subframe:{}, time:{:.5}, val:{:?}, GMT:{}",
+                        "subframe:{}, time:{:.5}, val:{:?}, UTC:{}",
                         subframe_idx, frame_time, value, frame_time_string
                     );
                 }
@@ -225,7 +236,6 @@ fn main() {
     if args.mem {
         // --begin--查看内存占用(linux)
         use std::io::{BufRead, BufReader};
-        use std::process;
         //println!(" PID is {}.", process::id());
         let status_file = File::open(format!("/proc/{}/status", process::id()))
             .expect("读取'/proc/?/status'失败");
@@ -248,9 +258,12 @@ fn main() {
     }
 }
 //获取参数，一组位置的原始值
+// --增加 param_prm 参数，可以获取RecFormat,ConvConfig， 为了处理BCD格式.
+// --增加 param_prm 参数后，signed从参数中去除，因为signed可以通过param_prm获取.
 fn get_dword_raw(
+    param_prm: &prm_conf::Param,
     prm_set: &Vec<usize>,
-    signed: f32,
+    //signed: bool,
     byte_cnt: usize,
     subframe_idx: usize,
     buf: &Mmap,
@@ -284,9 +297,25 @@ fn get_dword_raw(
         }
     }
     //如果有符号位，并且，最高位为1 . 默认最高bit为符号位.
-    if signed > 0.0 && dword_raw & (1 << (ttl_bit - 1)) > 0 {
+    //if param_prm.signed == true && dword_raw & (1 << (ttl_bit - 1)) > 0 {
+    if param_prm.signRecType == true && dword_raw & (1 << (ttl_bit - 1)) > 0 {
         //计算补码
         dword_raw -= 1 << ttl_bit;
+        //println!("--> INFO.signed=true, 计算补码");
+    }
+    // 处理BCD, 即,十进制数值
+    //if let prm_conf::RecFormat::BCD = param_prm.RecFormat
+    if prm_conf::RecFormat::BCD == param_prm.RecFormat {
+        let mut bcd_dword = 0;
+        let mut ii = 0;
+        //借用，倒序
+        for bcd_bits in (&param_prm.ConvConfig).iter().rev() {
+            let bits_mask: i32 = (1 << bcd_bits) - 1;
+            bcd_dword += (bits_mask & dword_raw) * (10_i32.pow(ii));
+            dword_raw >>= bcd_bits;
+            ii += 1;
+        }
+        dword_raw = bcd_dword;
     }
     return Some(dword_raw);
 }
@@ -386,7 +415,7 @@ fn find_sync(
 }
 fn showHelp(bin_name: String) {
     println!(
-        "Usage: {bin_name} [-r data/raw.dat] [-w data/output_data.csv] [-h | --help] [1|2|3|4|5|6|7|8|h|m|s|sup|day]"
+        "Usage: {bin_name} [-r data/raw.dat] [-w data/output_data.csv] [-h | --help] [1|2|3|4|5|6|7|h|m|s|sup|day]"
     );
     println!("   Detail:");
     println!("      -h        简略的命令行帮助");
@@ -396,9 +425,11 @@ fn showHelp(bin_name: String) {
     println!(" 说明: ");
     println!("   使用mmap把raw文件映射到内存，然后再解码多个参数中的一个。");
     println!("   多个解码配置写死在程序中。一次只能解码一个参数。");
+    println!("   所有的解码配置集中在 prm_conf::PrmConf 中。");
     println!("   增加命令行参数，显示内存占用，增加同步字顺序警告。");
     println!("   增加subframe判断，处理了符号位。");
     println!("   更改使用hashmap保存配置。配置中增加targetBit。");
     println!("   增加superFrame配置。尝试解码超级帧参数。");
+    println!("   增加BCD格式的处理。");
     println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
 }

@@ -21,7 +21,7 @@ use std::io::Write;
 use std::process;
 
 #[path = "../CmdLineArgs6.rs"]
-mod CmdLineArgs_aligned;
+mod CmdLineArgs;
 
 #[path = "../prm_conf6.rs"]
 mod prm_conf;
@@ -37,7 +37,7 @@ mod prm_conf;
 */
 fn main() {
     let args;
-    match CmdLineArgs_aligned::parse_args() {
+    match CmdLineArgs::parse_args() {
         Ok(tmp) => args = tmp,
         Err(err) => {
             println!("Command line parse ERR.\r\n{err}");
@@ -50,7 +50,12 @@ fn main() {
     }
 
     // 读取的文件名
-    let filename_read = args.rawfile.as_str();
+    let filename_read;
+    if args.rawfile.len() < 2 {
+        filename_read = "data/raw.dat";
+    } else {
+        filename_read = args.rawfile.as_str();
+    }
     // 写入的文件名
     let filename_write = args.csvfile.as_str();
     // 打开数据文件
@@ -188,13 +193,13 @@ fn main() {
             //取GMT时间，H:M:S
             frame_time_string = String::from("");
             if let Some(val) = get_dword_raw(&frame_hour, false, byte_cnt, subframe_idx, &buf) {
-                frame_time_string = format!("{}:", val);
+                frame_time_string = format!("{:02}:", val);
             }
             if let Some(val) = get_dword_raw(&frame_min, false, byte_cnt, subframe_idx, &buf) {
-                frame_time_string.push_str(format!("{}:", val).as_str());
+                frame_time_string.push_str(format!("{:02}:", val).as_str());
             }
             if let Some(val) = get_dword_raw(&frame_sec, false, byte_cnt, subframe_idx, &buf) {
-                frame_time_string.push_str(format!("{}", val).as_str());
+                frame_time_string.push_str(format!("{:02}", val).as_str());
             }
 
             let mut rate_cnt: f32 = 0.0;

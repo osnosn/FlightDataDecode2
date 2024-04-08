@@ -67,7 +67,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         help,
         help2,
         mem,
-        rawfile: rawfile.unwrap_or("data/raw.dat".to_string()), //缺省值为 "raw.dat"
+        rawfile: rawfile.unwrap_or("".to_string()), //缺省值为 ""
         csvfile: csvfile.unwrap_or("data/output_data.csv".to_string()),
         cmd: cmd.unwrap_or("".to_string()), //缺省值为 ""
     })

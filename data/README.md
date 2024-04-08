@@ -3,9 +3,10 @@
 Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARINC 429 573 717. FOQA, arinc429, arinc717. Airfase.  
 
 当前目录是 数据目录。  
-* `1024.PRM` 截取的配置文件。从 Airfase中导出的。  
+* `1024.PRM`,`320.PRM` 截取的配置文件。从 Airfase中导出的。  
 * `output*`  qar_decode 的输出。  
 * `raw.dat`  截取的原始数据，aligned格式。对应的解码配置是1024.PRM。   
+* `raw320.dat`  截取的原始数据，aligned格式。对应的解码配置是320.PRM。   
 * `bitstream_1214.DLU`  截取的原始数据，bitstream格式。没能找到对应的解码配置。   
 
 从airfase中，可以导出4种文件。FAP, Frame, PRM, FRED.   

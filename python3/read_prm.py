@@ -360,6 +360,7 @@ def split_line(line):
             #PA21, 记录次数/4sec, BCD取值方式/空白, 单个记录分几段保存, ?, ?, ?, ?
             #PA21, Rate(sample/frame), ConvConfig/空白, 单个记录分几段, SignRecType, FlagType, ?, ?
             # 单个记录分几段: 通常指一行PA31中有几个分段。
+            # SignRecType=00,01,只有这两个值。可能表示原始值中的最高位是否为符号位。
             'PA22':[0,5,19,33,47],
             #PA22, EU LowerOperRange, EU UpperOperRange, ?, ?
             #PA22, 取值范围最小, 取值范围最大, ?, ?
