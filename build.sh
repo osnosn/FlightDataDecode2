@@ -1,4 +1,7 @@
 
+ # 安装rust编译环境，参考rust官网 https://www.rust-lang.org/tools/install
+ # 在debian中执行安装脚本: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
  # 静态链接
  #RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
  ## RUSTFLAGS='-C target-feature=+crt-static -C link-args=-no-pie' cargo build --release

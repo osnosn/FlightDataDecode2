@@ -12,7 +12,6 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * qar_raw_dump   
   - `dump_raw_aligned` 扫描raw文件，通过 sync 同步字出现的顺序和间隔，确定是否 aligned格式。   
   - `dump_raw_bitstream` 扫描raw文件，通过 sync 同步字出现的顺序和间隔，确定是否 bitstream格式。   
-  - `decode7_arinc717_aligned.py` 解320.PRM   
 * qar_decode.  解码个别参数。   
   - `qar_decode5` 解1024.PRM   
   - `qar_decode7` 解320.PRM   
@@ -25,8 +24,8 @@ python3/ 目录，有几个 py3 程序。
 ### 更新  
 * **2024-03 最后更新**   
   - rust 程序  
-  - python3/read_prm.py 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
-  - `decode7_arinc717_aligned.py` 解320.PRM   
+  - `python3/read_prm.py` 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
+  - `python3/decode7_arinc717_aligned.py` 解320.PRM, raw320.dat   
 
 ### 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   

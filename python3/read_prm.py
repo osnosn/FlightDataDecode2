@@ -4,7 +4,7 @@
 """
 读解码库，参数配置文件 xxx.PRM
 仅支持 ARINC 573 PCM 格式
-   author: LLGZ@csair.com
+   author: osnosn@126.com OR LLGZ@csair.com
 """
 import os
 import gzip
@@ -84,10 +84,13 @@ def main():
                     print('  每秒记录个数:',vv['rate'])
                 else:
                     print('  [无: 每秒记录个数]')
-                if 'type2' in vv:
+                if 'RecFormat' in vv:
                     print('  采样类型:',vv['type1'])
-                    print('  记录格式:',vv['type2'])
+                    print('  记录格式:',vv['RecFormat'])
+                    print('  ConvConfig:',vv['ConvConfig'])
                     print('  signed:',vv['sign'])
+                    print('  SignRecType:',vv['SignRecType'])
+                    print('  FlagType:',vv['FlagType'])
                     print('  计量单位:',vv['unit'])
                 else:
                     print('  [无: 记录格式]')
@@ -105,18 +108,19 @@ def main():
                         print('     {:<4}   {:>4}    {:>5}  {:>3}        {:>3}       {:>3}'.format(mapk,mapv2['subframe'],mapv2['word'],mapv2['lsb'],mapv2['msb'],mapv2['target']))
                 print('  --数值转换--')
                 if len(vv['res'])>0:
-                    print('    编号      01       02     03    04   resolution')
+                    print('    编号 MinValue MaxValue EUConvType resI   resolutionA  resolutionB  resolutionC')
                 for mapk,mapv in vv['res'].items():
-                    print('     {:<4} {:>8} {:>8} {:>5}  {:>3}  {} '.format(mapk,mapv['01'],mapv['02'],mapv['03'],mapv['04'],mapv['resolution']))
+                    print('    {:>4} {:>8} {:>8} {:>8}    {:>3}  {:>12} {:>12} {:>12}'.format(mapk,mapv['MinValue'],mapv['MaxValue'],mapv['EUConvType'],mapv['resI'],mapv['resolutionA'],mapv['resolutionB'],mapv['resolutionC']))
                 print('  --离散枚举值--')
                 for mapk,mapv in vv['enum'].items():
                     print('    编号:',mapk,' ( 数值=>枚举值)')
                     for mapv2 in mapv:
                         print('      ',mapv2['val'],'=>',mapv2['text'])
+                print('  --参数类型--')
                 if 'superframe' in vv:
-                    print('  ---super frame 参数---')
+                    print('    super frame 参数')
                 else:
-                    print('  ---regular 参数---')
+                    print('    regular 参数')
         if len(idx)<1:
             print('Parameter %s not found in Regular parameter.'%param)
             print('Parameter %s not found in Superframe parameter.'%param)
@@ -200,11 +204,13 @@ def read_parameter_file(dataver):
               'superframe':'...',
               'res': {
                 '01': {
-                  '01': '..',
-                  '02': '..',
-                  '03': '..',
-                  '04': '..',
-                  'resolution': '..',
+                  'MinValue': '..',
+                  'MaxValue': '..',
+                  'EUConvType': '..',
+                  'resI': '..',
+                  'resolutionA': '..',
+                  'resolutionB': '..',
+                  'resolutionC': '..',
                 },
                 ...
               },
@@ -216,8 +222,11 @@ def read_parameter_file(dataver):
                 ...
               },
               'type1':'...',
-              'type2':'...',
+              'RecFormat':'...',
               'sign':'...',
+              'SignRecType':'...',
+              'FlagType':'...',
+              'ConvConfig':'...',
               'unit':'...',
               'rate':'...',
               'min':'...',
@@ -263,8 +272,8 @@ def read_parameter_file(dataver):
                 prm_conf['PRM'][PmName]['enum']={}
             elif line_tr.startswith('PA12'):  #记录参数
                 row=split_line(line_tr)
-                prm_conf['PRM'][PmName]['type1']=row[2]
-                prm_conf['PRM'][PmName]['type2']=row[3]
+                prm_conf['PRM'][PmName]['type1']=row[2]  #采样类型
+                prm_conf['PRM'][PmName]['RecFormat']=row[3]
                 prm_conf['PRM'][PmName]['sign']=row[4]
                 prm_conf['PRM'][PmName]['unit']=row[5]
             elif line_tr.startswith('PA17'):  #记录参数
@@ -273,7 +282,13 @@ def read_parameter_file(dataver):
             elif line_tr.startswith('PA21'):  #记录参数
                 row=split_line(line_tr)
                 prm_conf['PRM'][PmName]['rate']=row[1]
+                prm_conf['PRM'][PmName]['ConvConfig']=row[2]
+                prm_conf['PRM'][PmName]['SignRecType']=row[4]
+                prm_conf['PRM'][PmName]['FlagType']=row[5]
                 #print(row)
+                #if row[5] !='00':
+                #    print(prm_conf['PRM'][PmName]['name'],row[5])
+                #    print('==>',row[5])
             elif line_tr.startswith('PA22'):  #记录参数
                 row=split_line(line_tr)
                 prm_conf['PRM'][PmName]['min']=row[1]
@@ -315,12 +330,15 @@ def read_parameter_file(dataver):
                 else:
                     print('ERR,PA41 转换系数编号重复,',PmName)
                 prm_conf['PRM'][PmName]['res'][row[1]]={
-                        '01':row[2],
-                        '02':row[3],
-                        '03':row[4],
-                        '04':row[5],
-                        'resolution':row[7],
+                        'MinValue':row[2],
+                        'MaxValue':row[3],
+                        'EUConvType':row[4],
+                        'resI':row[5],
+                        'resolutionA':row[6],
+                        'resolutionB':row[7],
+                        'resolutionC':row[8],
                         }
+                #print('==>',row[5])
             elif line_tr.startswith('PA50'):  #记录参数
                 row=split_line(line_tr)
                 #print(row)
@@ -354,6 +372,7 @@ def split_line(line):
             #PA11, ?, ?, 参数名简称(会被截断), 参数名全称
             'PA12':[0,5,7,16,25,27,53,63],
             #PA12, ?, 采样类型(Type), 记录格式(RecFormat), 是否有符号位, 计量单位, 日期, ?
+            #工程值是否有符号，似乎不是以这个为准，而是以SignRecType为准。
             'PA17':[0,5],
             #PA17, 参数名简称(如果PA11没显示完整)
             'PA21':[0,5,9,17,20,23,26,33],
@@ -361,9 +380,12 @@ def split_line(line):
             #PA21, Rate(sample/frame), ConvConfig/空白, 单个记录分几段, SignRecType, FlagType, ?, ?
             # 单个记录分几段: 通常指一行PA31中有几个分段。
             # SignRecType=00,01,只有这两个值。可能表示原始值中的最高位是否为符号位。
+            #FlagType:只有''(空),0,4,5四种值。
+            # 最后两个值，都是0; 即:'000000 00'
             'PA22':[0,5,19,33,47],
             #PA22, EU LowerOperRange, EU UpperOperRange, ?, ?
             #PA22, 取值范围最小, 取值范围最大, ?, ?
+            # 最后两个值，都是1和0; 即:'1.000000e+00 0'; 怀疑是原始值的转换系数。
             'PA31':[0,5,9, 16,21,26,29,32, 35,40,45,48,51, 54,59,64,67,70 ],
             #(会有多行) PA31, 序号SampleNum,ComponentsNum,  SubFrame,WordNum,LSB低位,MSB高位,TargetBit,  
             # 同一行的多个部分，解码时需要拼接。如果TargetBit=0,则按顺序首尾拼接. 如有三组A,B,C, 则A在高位,C在低位。
@@ -374,11 +396,12 @@ def split_line(line):
             #PA32,  (与PA31相同) 
             # 如果有PA32，则应该与同序号的 PA31合并到 同一行。PA21中"分几段"也证实,需要合并。
             'PA41':[0,5,8,16,24,29,33,47,61],
-            #(会有多行) PA41, 序号, MinValue, MaxValue, EU ConvType?, 系数编号, 转换系数0, 转换系数1, 转换系数2, (多行的情况,不知道怎么换算的)
+            #(会有多行) PA41, 序号, MinValue, MaxValue, EU ConvType?, 系数编号resI, 转换系数0, 转换系数1, 转换系数2, (多行的情况,不知道怎么换算的)
             # EU=equation
+            # EUConvType:只有0,1两种值; 系数编号resI:只有1,2两种值;
             # EUConvType=0; 无需转换
-            # EUConvType=1,系数编号=1; 转换公式为 VAL=系数0 + 系数1 * X
-            # EUConvType=1,系数编号=2; 转换公式为 VAL=系数0 + 系数1 * X + 系数2 * (X^2)
+            # EUConvType=1,系数编号resI=1; 转换公式为 VAL=系数0 + 系数1 * X
+            # EUConvType=1,系数编号resI=2; 转换公式为 VAL=系数0 + 系数1 * X + 系数2 * (X*X)
             'PA50':[0,5,18,31,44,57,59],
             #PA50, 参数名简称/空白, 参数名全称/空白, 单位/空白, 输出的显示格式, ?, ?
             'PA62':[0, 5,11, 24,30, 43,49, 62,68],
@@ -435,7 +458,7 @@ def getPRM(dataver,param):
                                   int(tmp['msb']),   #bitOut, 在12bit中,第几个bit开始
                                   int(tmp['msb'])-int(tmp['lsb'])+1,   #bitLen, 共几个bits
                                   int(tmp['target']),   #bitIn,  写入arinc429的32bits word中,从第几个bits开始写
-                                  vv['res']['01']['resolution'] if len(vv['res'])>0 else 1,  #resolution, 未用到
+                                  vv['res']['01']['resolutionB'] if len(vv['res'])>0 else 1,  #resolutionB, 未用到
                                   ]
                             ret4.append(tmp2)
                 else:
@@ -493,7 +516,7 @@ def usage():
     print('   -v, --ver=10XXX      dataver 中的参数配置表')
     print('   --csv xxx.csv        save to "xxx.csv" file.')
     print('   --csv xxx.csv.gz     save to "xxx.csv.gz" file.')
-    print('   --paramlist          list all param name.')
+    print('   -l,--paramlist       list all param name.')
     print('   -p,--param alt_std   show "alt_std" param.')
     print(u'\n               author: LLGZ@csair.com')
     print()
@@ -503,7 +526,7 @@ if __name__=='__main__':
         usage()
         exit()
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:],'hv:p:f:d',['help','ver=','csv=','paramlist','param='])
+        opts, args = getopt.gnu_getopt(sys.argv[1:],'hlv:p:f:d',['help','ver=','csv=','paramlist','param='])
     except getopt.GetoptError as e:
         print(e)
         usage()
@@ -523,7 +546,7 @@ if __name__=='__main__':
             DUMPDATA=True
         elif op in('--csv',):
             TOCSV=value
-        elif op in('--paramlist',):
+        elif op in('-l','--paramlist',):
             PARAMLIST=True
         elif op in('--param','-p',):
             PARAM=value
