@@ -3,7 +3,7 @@
 
 """
 配置文件
-   author: LLGZ@csair.com
+   author: osnosn@126.com
 """
 import os
 selfpath=os.path.dirname(os.path.realpath(__file__)) #本脚本自身所在的目录
@@ -25,7 +25,7 @@ def usage():
     print(sys.argv[0]+' [-h|--help] ')
     print('   -h, --help     print usage.')
     print('   -d             show config.')
-    print(u'\n               author: LLGZ@csair.com')
+    print(u'\n               author: osnosn@126.com')
     print()
     return
 if __name__=='__main__':

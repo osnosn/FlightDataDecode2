@@ -2,7 +2,7 @@
 //! 使用mmap把raw文件映射到内存，然后再解码多个参数中的一个。  
 //! 多个解码配置写死在程序中。一次只能解码一个参数。  
 //! 使用mmap读取raw.dat。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use memmap2::Mmap;
 use memmap2::MmapOptions;
@@ -276,5 +276,5 @@ fn showHelp(bin_name: String) {
     println!("   使用mmap把raw文件映射到内存，然后再解码多个参数中的一个。");
     println!("   多个解码配置写死在程序中。一次只能解码一个参数。");
     println!("   使用mmap读取raw.dat。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }

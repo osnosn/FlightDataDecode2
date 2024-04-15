@@ -4,7 +4,7 @@
 """
 读解码库，参数配置文件 xxx.PRM
 仅支持 ARINC 573 PCM 格式
-   author: osnosn@126.com OR LLGZ@csair.com
+   author: osnosn@126.com
 """
 import os
 import gzip
@@ -430,7 +430,7 @@ def getPRM(dataver,param):
     '''
     获取参数在arinc717的12bit word中的位置配置
     挑出有用的,整理一下,返回
-       author: LLGZ@csair.com
+       author: osnosn@126.com
     '''
     prm_conf=read_parameter_file(dataver)
     if len(prm_conf['DAT'])<1 or len(prm_conf['PRM'])<1:
@@ -518,7 +518,7 @@ def usage():
     print('   --csv xxx.csv.gz     save to "xxx.csv.gz" file.')
     print('   -l,--paramlist       list all param name.')
     print('   -p,--param alt_std   show "alt_std" param.')
-    print(u'\n               author: LLGZ@csair.com')
+    print(u'\n               author: osnosn@126.com')
     print()
     return
 if __name__=='__main__':

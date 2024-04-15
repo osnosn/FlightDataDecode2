@@ -7,7 +7,7 @@
 //! 更改使用hashmap保存配置。配置中增加targetBit。  
 //! 增加superFrame配置。尝试解码超级帧参数。  
 //! 加入 luajit/lua 脚本的执行。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use memmap2::Mmap;
 use memmap2::MmapOptions;
@@ -514,5 +514,5 @@ fn showHelp(bin_name: String) {
     println!("   更改使用hashmap保存配置。配置中增加targetBit。");
     println!("   增加superFrame配置。尝试解码超级帧参数。");
     println!("   加入 luajit/lua 脚本的执行。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }

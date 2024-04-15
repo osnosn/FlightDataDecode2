@@ -3,7 +3,7 @@
 //! 多个解码配置写死在程序中。一次只能解码一个参数。  
 //! 增加命令行参数。  
 //! 使用BufRead读取raw.dat。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com  
 
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
@@ -273,5 +273,5 @@ fn showHelp(bin_name: String) {
     println!("   多个解码配置写死在程序中。一次只能解码一个参数。");
     println!("   增加命令行参数。");
     println!("   使用BufRead读取raw.dat。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }

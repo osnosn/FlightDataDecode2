@@ -2,7 +2,7 @@
 
 //! 扫描raw文件, 通过sync同步字出现的顺序和间隔, 判断是否 bitstream 格式。  
 //! 显示12bit word计数.  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use std::fs::File;
 use std::io::BufReader;

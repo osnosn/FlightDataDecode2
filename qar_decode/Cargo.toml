@@ -2,7 +2,7 @@
 name = "qar_decode"
 version = "0.2.2"
 edition = "2021"
-authors = ["osnosn <osnosn@126.com>", "LLGZ <LLGZ@csair.com>"]
+authors = ["osnosn <osnosn@126.com>"]
 description = "Use PRM decode Aligned raw.dat"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

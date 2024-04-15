@@ -5,7 +5,7 @@
 //! 增加subframe判断，处理了符号位。  
 //! 更改使用hashmap保存配置。配置中增加targetBit。  
 //! 增加superFrame配置。尝试解码超级帧参数。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use memmap2::Mmap;
 use memmap2::MmapOptions;
@@ -400,5 +400,5 @@ fn showHelp(bin_name: String) {
     println!("   增加subframe判断，处理了符号位。");
     println!("   更改使用hashmap保存配置。配置中增加targetBit。");
     println!("   增加superFrame配置。尝试解码超级帧参数。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }

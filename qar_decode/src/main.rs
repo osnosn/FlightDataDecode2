@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 //! 把raw文件全部读入内存，然后再解码一个参数。  
 //! 一个解码配置写死在程序中。只能解码一个参数。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com  
 
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
@@ -82,7 +82,7 @@ fn main() {
     println!(" 说明: ");
     println!("   把raw文件全部读入内存，然后再解码一个参数。");
     println!("   一个解码配置写死在程序中。只能解码一个参数。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }
 fn find_sync(
     byte_cnt: &mut usize,

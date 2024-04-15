@@ -3,7 +3,7 @@
 //! 多个解码配置写死在程序中。一次只能解码一个参数。  
 //! 增加命令行参数，显示内存占用，增加同步字顺序警告。  
 //! 增加subframe判断，处理了符号位。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use memmap2::Mmap;
 use memmap2::MmapOptions;
@@ -431,5 +431,5 @@ fn showHelp(bin_name: String) {
     println!("   多个解码配置写死在程序中。一次只能解码一个参数。");
     println!("   增加命令行参数，显示内存占用，增加同步字顺序警告。");
     println!("   增加subframe判断，处理了符号位。");
-    println!("      author: osnosn@126.com  OR  LLGZ@csair.com");
+    println!("      author: osnosn@126.com");
 }

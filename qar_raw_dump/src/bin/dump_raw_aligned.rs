@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 //! 扫描raw文件, 通过sync同步字出现的顺序和间隔, 判断是否 aligned 格式。  
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use std::fs::File;
 use std::io::BufReader;

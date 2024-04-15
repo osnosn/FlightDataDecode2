@@ -1,4 +1,4 @@
-//!    author: osnosn@126.com  OR  LLGZ@csair.com  
+//!    author: osnosn@126.com   
 
 use std::collections::HashMap;
 
