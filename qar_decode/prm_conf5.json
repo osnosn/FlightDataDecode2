@@ -1,0 +1,31 @@
+//!    author: osnosn@126.com  
+
+/// 这仅仅是个示例json
+
+{
+   "VRTG": {   //paramName
+      "words": [
+         //[ subframe,word,lsb,msb,targetBit],
+         [0, 9, 1, 12, 1],
+         [0, 41, 1, 12, 1]
+      ],
+      "superframe": 0,   //0=非超级帧参数
+      "res": [0.0, 0.0, 0.00390625]  //符号+系数 [sined,A,B]; 转换公式, A+B*X
+                                     //signed=1.0,有符号; 0.0,无符号; 
+   },
+      "ALT_BARO": {
+         "words": [
+            [0, 716, 1, 12, 1, 0, 715, 8, 12, 0]
+         ],
+         "superframe": 0,  
+         "res": [1.0, 0.0, 1.0]
+      },
+      "DAY": {
+         "words": [
+            [1, 17, 1, 6, 0]
+         ],
+         "superframe": 4, 
+         "res": [0.0, 0.0, 1.0]
+      }
+}
+
