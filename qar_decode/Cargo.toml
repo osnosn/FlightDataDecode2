@@ -10,6 +10,8 @@ description = "Use PRM decode Aligned raw.dat"
 [dependencies]
 lexopt = { version = "0.3.0", registry = "rsproxy" }
 memmap2 = { version = "0.9.4", registry = "rsproxy" }
+serde = { version = "1.0.202", registry = "rsproxy", features = ["derive"] }
+serde_json = { version = "1.0.117", registry = "rsproxy" }
 
 #[profile.release]
 #strip = true

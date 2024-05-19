@@ -14,8 +14,8 @@ pub struct Param {
     // targetBit=0,为默认拼接方式
     pub superframe: usize, //0=非超级帧参数
     pub res: [f32; 2],     //系数 A,B; 转换公式, A+B*X
-    pub signed: bool,      //true=1,有符号; false=0,无符号; 
-                           //符号位不知道以那个为准.
+    pub signed: bool,      //true=1,有符号; false=0,无符号;
+    //符号位不知道以那个为准.
     pub signRecType: bool, //true=01,有符号; false=00,无符号;
     pub RecFormat: RecFormat,
     pub ConvConfig: Vec<u8>, // 1443 BCD
@@ -139,7 +139,7 @@ impl PrmConf {
             LongName: "SAT_CA".to_string(),
         };
         param.insert("SAT".to_string(), sat);
-        // CAS 的配置 
+        // CAS 的配置
         let cas = Param {
             words: vec![vec![0, 74, 1, 12, 1], vec![0, 586, 1, 12, 0]],
             res: [0.0, 0.125],

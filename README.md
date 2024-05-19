@@ -15,6 +15,8 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * qar_decode.  解码个别参数。   
   - `qar_decode5` 解1024.PRM   
   - `qar_decode7` 解320.PRM   
+  - `qar_decode8` 解320.PRM, 配置来自json文件。   
+    - 从`prm_conf320.json`文件中读取解码配置。   
 * qar_decode_lua.  解码个别参数。   
   - `qar_decode6` 嵌入lua脚本测试   
 
