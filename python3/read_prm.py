@@ -10,6 +10,7 @@ import os
 import gzip
 from io import StringIO
 import config_vec as conf
+import json
 
 def main():
     global FNAME,DUMPDATA
@@ -66,6 +67,23 @@ def main():
                     fp.write(str(ii)+'\t'+vv['name']+'\n')
                 ii+=1
             fp.close()
+        return
+
+    if PARAMJSON:
+        #----------显示所有参数名-------------
+        #---regular parameter, superframe parameter
+        PrmConf=prm_to_dict(prm_conf)
+        #----写CSV文件--------
+        if len(TOCSV)>4:
+            print('Write to CSV file:',TOCSV)
+            if TOCSV.endswith('.gz'):
+                fp=gzip.open(TOCSV,'wt',encoding='utf8')
+            else:
+                fp=open(TOCSV,'w',encoding='utf8')
+            fp.write(json.dumps(PrmConf, ensure_ascii=False, separators=(',',':')))
+            fp.close()
+        else:
+            print(json.dumps(PrmConf, ensure_ascii=False, indent=3))
         return
 
     if PARAM is not None and len(PARAM)>0:  #显示单个参数名
@@ -180,6 +198,97 @@ def print_fra(prm_conf, frakey ):
         for jj in range(1,show_len+1):
             print('\t',prm_conf[frakey][jj][ii], end=',')
         print('\t',prm_conf[frakey][0][ii])
+
+def prm_to_dict(prm_conf):
+    PrmConf={
+            "WordPerSec": int(prm_conf['DAT'][2]),
+            "SuperFramePerCycle": int(prm_conf['SUP'][2]),
+            "param": {
+                "SuperFrameCounter": {
+                    #words: [ subframe,word,lsb,msb,targetBit]
+                    "words": [[
+                        int(prm_conf['SUP'][3]) if prm_conf['SUP'][3]!='ALL' else 0,
+                        int(prm_conf['SUP'][4]),
+                        int(prm_conf['SUP'][5]),
+                        int(prm_conf['SUP'][6]),
+                        0]],
+                    #res: 系数 [A,B]; 转换公式, A+B*X
+                    "res": [0.0, 1.0],
+                    "signed": False,      #true=1,有符号; false=0,无符号; 
+                    "signRecType": False, #true=01,有符号; false=00,无符号; 以这个为准.
+                    "superframe": 0,   #superframe:0 非超级帧参数
+                    "RecFormat": "BNR",
+                    "ConvConfig": [],
+                    "Unit": "",
+                    "LongName": "SUPER FRAME COUNTER"
+                    }
+                }
+            }
+    ii=0
+    for vv in prm_conf['PRM'].values():
+        PrmConf["param"][vv['name']]={
+                    #words: [ subframe,word,lsb,msb,targetBit]
+                    "words": [],
+                    #res: 系数 A,B,C; 转换公式, A+B*X+C*X*X
+                    #res: [MinValue, MaxValue, resolutionA, resolutionB, resolutionC]
+                    "res": [],
+                    "signed": True if vv['sign']=='Y' else False,
+                    "signRecType": True if int(vv['SignRecType'])!=0 else False,
+                    "superframe": int(vv['superframe']) if 'superframe' in vv else 0,
+                    "RecFormat": vv['RecFormat'],
+                    #ConvConfig: 类型为BCD/ISO，每一位"数字/字符"占用的bit数
+                    "ConvConfig": [],
+                    "Unit": vv['unit'],
+                    "LongName": vv['namelong'],
+
+                    "rate": int(vv['rate']),
+                    "FlagType": int(vv['FlagType']) if vv['FlagType']!='' else 0,
+                    "range": [],
+                    #Options: 类型为DIS，枚举值
+                    "Options": [],
+                    }
+        if len(vv['ConvConfig'])>0:
+            for onechar in vv['ConvConfig']:
+                if onechar=='s':
+                    onechar='1'
+                    #print(vv['name'],vv['ConvConfig'])
+                PrmConf["param"][vv['name']]["ConvConfig"].append( int(onechar) )
+        if 'min' in vv:
+            PrmConf["param"][vv['name']]["range"].append( float(vv['min']) )
+            PrmConf["param"][vv['name']]["range"].append( float(vv['max']) )
+        for mapv in vv['map'].values():
+            for mapv2 in mapv:
+                if mapv2['subframe'].find(',')>0:
+                    subframeA=mapv2['subframe'].split(',')
+                else:
+                    subframeA=[mapv2['subframe'], ]
+                for subframe in subframeA:
+                    PrmConf["param"][vv['name']]["words"].append([
+                        int(subframe) if subframe!='ALL' else 0,
+                        int(mapv2['word']),
+                        int(mapv2['lsb']),
+                        int(mapv2['msb']),
+                        int(mapv2['target']) if mapv2['target']!='' else 0,
+                        ])
+        #print('    编号 MinValue MaxValue EUConvType resI   resolutionA  resolutionB  resolutionC')
+        #if len(vv['res'])>1:
+        #    print(vv['name'],vv['res'])
+        for mapv in vv['res'].values():
+            PrmConf["param"][vv['name']]["res"].append([
+                int(mapv['MinValue']),
+                int(mapv['MaxValue']),
+                float(mapv['resolutionA']),
+                float(mapv['resolutionB']),
+                float(mapv['resolutionC']),
+                ])
+        for mapv in vv['enum'].values():
+            for mapv2 in mapv:
+                #PrmConf["param"][vv['name']]["Options"][int(mapv2['val'])]=mapv2['text']
+                PrmConf["param"][vv['name']]["Options"].append([int(mapv2['val']), mapv2['text'] ])
+        ii+=1
+    #print(json.dumps(PrmConf, ensure_ascii=False, separators=(',',':')))
+    #print(json.dumps(PrmConf, ensure_ascii=False, indent=3))
+    return PrmConf
 
 def read_parameter_file(dataver):
     '''
@@ -518,6 +627,7 @@ def usage():
     print('   --csv xxx.csv.gz     save to "xxx.csv.gz" file.')
     print('   -l,--paramlist       list all param name.')
     print('   -p,--param alt_std   show "alt_std" param.')
+    print('   -j,--paramjson       dump all param config TO "json" format.')
     print(u'\n               author: osnosn@126.com')
     print()
     return
@@ -526,7 +636,7 @@ if __name__=='__main__':
         usage()
         exit()
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:],'hlv:p:f:d',['help','ver=','csv=','paramlist','param='])
+        opts, args = getopt.gnu_getopt(sys.argv[1:],'hlv:p:f:dj',['help','ver=','csv=','paramlist','paramjson','param='])
     except getopt.GetoptError as e:
         print(e)
         usage()
@@ -535,6 +645,7 @@ if __name__=='__main__':
     DUMPDATA=False
     TOCSV=''
     PARAMLIST=False
+    PARAMJSON=False
     PARAM=None
     for op,value in opts:
         if op in ('-h','--help'):
@@ -548,6 +659,8 @@ if __name__=='__main__':
             TOCSV=value
         elif op in('-l','--paramlist',):
             PARAMLIST=True
+        elif op in('-j','--paramjson',):
+            PARAMJSON=True
         elif op in('--param','-p',):
             PARAM=value
     if len(args)>0:  #命令行剩余参数
