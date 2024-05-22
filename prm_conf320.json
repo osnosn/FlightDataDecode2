@@ -2,139 +2,11 @@
    "WordPerSec": 1024,
    "SuperFramePerCycle": 16,
    "param": {
-      "VRTG": {
-         "words": [
-            [0, 9, 1, 12, 1],
-            [0, 41, 1, 12, 1],
-            [0, 73, 1, 12, 1],
-            [0, 105, 1, 12, 1],
-            [0, 137, 1, 12, 1],
-            [0, 169, 1, 12, 1],
-            [0, 201, 1, 12, 1],
-            [0, 233, 1, 12, 1]
-         ],
-         "res": [0.0, 0.00390625],
-         "signed": true,
-         "signRecType": true,
-         "superframe": 0, 
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "G",
-         "LongName": "Normal acceleration"
-      },
-      "ALT_BARO": {
-         "words": [
-            [0, 716, 1, 12, 1, 0, 715, 8, 12, 0]
-         ],
-         "res": [0.0, 1.0], 
-         "signed": true,
-         "signRecType": true,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "ft",
-         "LongName": "BARO ALTI CORRECTED #1"
-      },
-      "GPS_GS_C": {
-         "words": [[0, 747, 1, 12, 17]],
-         "res": [0.0, 0.25],
-         "signed": true,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "kts",
-         "LongName": "GPS GROUND SPEED CAPT"
-      },
-      "PITCH": {
-         "words": [
-            [0, 44, 3, 12, 1],
-            [0, 172, 3, 12, 1],
-            [0, 300, 3, 12, 1],
-            [0, 428, 3, 12, 1],
-            [0, 556, 3, 12, 0],
-            [0, 684, 3, 12, 0],
-            [0, 812, 3, 12, 0],
-            [0, 940, 3, 12, 0]
-         ],
-         "res": [0.0, 0.1757813],
-         "signed": true,
-         "signRecType": true,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "Â°",
-         "LongName": "Pitch attitude CA"
-      },
-      "N1_1": {
-         "words": [[0, 369, 1, 12, 1]],
-         "res": [0.0, 0.03125],
-         "signed": true,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "RPM",
-         "LongName": "N1 Actual Eng 1"
-      },
-      "SAT": {
-         "words": [[1, 521, 3, 12, 16], [3, 521, 3, 12, 16]],
-         "res": [0.0, 0.25],
-         "signed": true,
-         "signRecType": true,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "Â°C",
-         "LongName": "SAT_CA"
-      },
-      "CAS": {
-         "words": [[0, 74, 1, 12, 1], [0, 586, 1, 12, 0]],
-         "res": [0.0, 0.125],
-         "signed": false,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "kts",
-         "LongName": "Computed airspeed CAPT"
-      },
-      "UTCH": {
-         "words": [[4, 429, 6, 12, 0]],
-         "res": [0.0, 1.0],
-         "signed": false,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BCD",
-         "ConvConfig": [3, 4],
-         "Unit": "",
-         "LongName": "UTC_HOUR_SYS2"
-      },
-      "UTCM": {
-         "words": [[4, 225, 7, 12, 1]],
-         "res": [0.0, 1.0],
-         "signed": false,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "",
-         "LongName": "UTC Minutes"
-      },
-      "UTCS": {
-         "words": [[4, 225, 1, 6, 1]],
-         "res": [0.0, 1.0],
-         "signed": false,
-         "signRecType": false,
-         "superframe": 0,
-         "RecFormat": "BNR",
-         "ConvConfig": [],
-         "Unit": "",
-         "LongName": "UTC Seconds"
-      },
       "SuperFrameCounter": {
-         "words": [[2, 225, 1, 4, 0]],
-         "res": [0.0, 1.0],
+         "words": [
+            [ 2, 225, 1, 4, 0 ]
+         ],
+         "res": [],
          "signed": false,
          "signRecType": false,
          "superframe": 0,
@@ -143,17 +15,273 @@
          "Unit": "",
          "LongName": "SUPER FRAME COUNTER"
       },
-      "DAY": {
-         "words": [[1, 17, 1, 6, 0]],
-         "res": [0.0, 1.0],
+      "ALT_BARO_ADC1": {
+         "words": [
+            [ 0, 716, 1, 12, 1, 0, 715, 8, 12, 0 ]
+         ],
+         "res": [],
+         "signed": true,
+         "signRecType": true,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "ft",
+         "LongName": "BARO ALTI CORRECTED #1",
+         "rate": 4,
+         "FlagType": 0,
+         "range": [
+            -2000.0,
+            50000.0
+         ],
+         "Options": []
+      },
+      "CAS": {
+         "words": [
+            [ 0, 74, 1, 12, 1 ],
+            [ 0, 586, 1, 12, 0 ]
+         ],
+         "res": [
+            [ -4096, 4095, 0.0, 0.125, 0.0 ]
+         ],
          "signed": false,
          "signRecType": false,
-         "superframe": 4,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "kts",
+         "LongName": "Computed airspeed CAPT",
+         "rate": 8,
+         "FlagType": 0,
+         "range": [
+            30.0,
+            450.0
+         ],
+         "Options": []
+      },
+      "DAY": {
+         "words": [
+            [ 1, 17, 1, 6, 0 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
          "RecFormat": "BCD",
-         "ConvConfig": [2, 4],
+         "ConvConfig": [ 2, 4 ],
          "Unit": "",
-         "LongName": "DAY"
+         "LongName": "DAY",
+         "rate": 1,
+         "FlagType": 0,
+         "range": [
+            1.0,
+            31.0
+         ],
+         "Options": []
+      },
+      "GPS_GS_CA": {
+         "words": [
+            [ 0, 747, 1, 12, 17 ]
+         ],
+         "res": [
+            [ -4096, 4096, 0.0, 0.25, 0.0 ]
+         ],
+         "signed": true,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "kts",
+         "LongName": "GPS GROUND SPEED CAPT",
+         "rate": 4,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            1000.0
+         ],
+         "Options": []
+      },
+      "SAT": {
+         "words": [
+            [ 1, 521, 3, 12, 16 ],
+            [ 3, 521, 3, 12, 16 ]
+         ],
+         "res": [
+            [ -1024, 1024, 0.0, 0.25, 0.0 ]
+         ],
+         "signed": true,
+         "signRecType": true,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "ÃÂ°C",
+         "LongName": "SAT_CA",
+         "rate": 2,
+         "FlagType": 0,
+         "range": [
+            -60.0,
+            99.0
+         ],
+         "Options": []
+      },
+      "N1_1": {
+         "words": [
+            [ 0, 369, 1, 12, 1 ]
+         ],
+         "res": [
+            [ -4096, 4095, 0.0, 0.03125, 0.0 ]
+         ],
+         "signed": true,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "RPM",
+         "LongName": "N1 Actual Eng 1",
+         "rate": 4,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            120.0
+         ],
+         "Options": []
+      },
+      "PITCH": {
+         "words": [
+            [ 0, 44, 3, 12, 1 ],
+            [ 0, 172, 3, 12, 1 ],
+            [ 0, 300, 3, 12, 1 ],
+            [ 0, 428, 3, 12, 1 ],
+            [ 0, 556, 3, 12, 0 ],
+            [ 0, 684, 3, 12, 0 ],
+            [ 0, 812, 3, 12, 0 ],
+            [ 0, 940, 3, 12, 0 ]
+         ],
+         "res": [
+            [ -9999, 9999, 0.0, 0.1757813, 0.0 ]
+         ],
+         "signed": true,
+         "signRecType": true,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "ÃÂ°",
+         "LongName": "Pitch attitude CA",
+         "rate": 32,
+         "FlagType": 0,
+         "range": [
+            -75.0,
+            75.0
+         ],
+         "Options": []
+      },
+      "UTC_HOUR": {
+         "words": [
+            [ 1, 19, 6, 12, 1 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BCD",
+         "ConvConfig": [ 3, 4 ],
+         "Unit": "",
+         "LongName": "UTC Hours",
+         "rate": 1,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            23.0
+         ],
+         "Options": []
+      },
+      "UTC_HOUR_SYS2": {
+         "words": [
+            [ 4, 429, 6, 12, 0 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BCD",
+         "ConvConfig": [ 3, 4 ],
+         "Unit": "",
+         "LongName": "UTC_HOUR_SYS2",
+         "rate": 1,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            23.0
+         ],
+         "Options": []
+      },
+      "UTC_MIN": {
+         "words": [
+            [ 4, 225, 7, 12, 1 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "",
+         "LongName": "UTC Minutes",
+         "rate": 1,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            59.0
+         ],
+         "Options": []
+      },
+      "UTC_SEC": {
+         "words": [
+            [ 4, 225, 1, 6, 1 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "",
+         "LongName": "UTC Seconds",
+         "rate": 1,
+         "FlagType": 0,
+         "range": [
+            0.0,
+            59.0
+         ],
+         "Options": []
+      },
+      "VRTG": {
+         "words": [
+            [ 0, 9, 1, 12, 1 ],
+            [ 0, 41, 1, 12, 1 ],
+            [ 0, 73, 1, 12, 1 ],
+            [ 0, 105, 1, 12, 1 ],
+            [ 0, 137, 1, 12, 1 ],
+            [ 0, 169, 1, 12, 1 ],
+            [ 0, 201, 1, 12, 1 ],
+            [ 0, 233, 1, 12, 1 ]
+         ],
+         "res": [
+            [ -4096, 4096, 0.0, 0.00390625, 0.0 ]
+         ],
+         "signed": true,
+         "signRecType": true,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "g",
+         "LongName": "Normal acceleration",
+         "rate": 32,
+         "FlagType": 0,
+         "range": [
+            -3.0,
+            6.0
+         ],
+         "Options": []
       }
    }
 }
-

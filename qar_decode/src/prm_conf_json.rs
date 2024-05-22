@@ -17,9 +17,9 @@ pub struct Param {
     pub words: Vec<Vec<usize>>, // [ subframe,word,lsb,msb,targetBit]
     // subframe=0,为 ALL, 即,4个subframe都有记录
     // targetBit=0,为默认拼接方式
-    pub superframe: usize, //0=非超级帧参数
-    pub res: [f32; 2],     //系数 A,B; 转换公式, A+B*X
-    pub signed: bool,      //true=1,有符号; false=0,无符号;
+    pub superframe: usize,  //0=非超级帧参数
+    pub res: Vec<[f32; 5]>, //系数 A,B; 转换公式, A+B*X
+    pub signed: bool,       //true=1,有符号; false=0,无符号;
     //符号位不知道以那个为准.
     pub signRecType: bool, //true=01,有符号; false=00,无符号;
     pub RecFormat: String,

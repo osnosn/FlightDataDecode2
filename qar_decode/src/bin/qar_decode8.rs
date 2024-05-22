@@ -72,9 +72,13 @@ fn main() {
     // 参数的配置,
     let prm_words; //取值位置的配置
     let prm_superframe; //超级帧
-    let res_A; //系数A
-    let res_B; //系数B
-               //let signed; //是否带符号位 false=N, true=Y,
+    let _res_rangeMin;
+    let _res_rangeMax;
+    let res_A:f32; //系数A
+    let res_B:f32; //系数B
+    let _res_C:f32; //系数C
+
+    //let signed; //是否带符号位 false=N, true=Y,
     let prm_name; //参数名称
     prm_name = match &args.cmd as &str {
         "" | "1" => "VRTG",
@@ -84,9 +88,9 @@ fn main() {
         "5" => "N1_1",
         "6" => "SAT",
         "7" => "CAS",
-        "h" => "UTCH",
-        "m" => "UTCM",
-        "s" => "UTCS",
+        "h" => "UTC_HOUR",
+        "m" => "UTC_MIN",
+        "s" => "UTC_SEC",
         "sup" => "SuperFrameCounter",
         "day" => "DAY",
         _ => {
@@ -102,7 +106,11 @@ fn main() {
     prm_words = prm_param.words.clone();
     prm_superframe = prm_param.superframe;
     //signed = prm_param.signed;
-    [res_A, res_B] = prm_param.res;
+    if prm_param.res.len() > 0 {
+        [_res_rangeMin, _res_rangeMax, res_A, res_B, _res_C] = prm_param.res[0];
+    } else {
+        [_res_rangeMin, _res_rangeMax, res_A, res_B, _res_C] = [ 0.0, 0.0, 0.0, 1.0, 0.0];
+    }
 
     //每次都要取值的参数配置
     let prm_superFrameCnt_prm = prm_conf
@@ -110,11 +118,11 @@ fn main() {
         .get("SuperFrameCounter")
         .expect("参数没找到:'SuperFrameCounter'");
     let prm_superFrameCnt = prm_superFrameCnt_prm.words[0].clone();
-    let frame_hour_prm = prm_conf.param.get("UTCH").expect("参数没找到:'UTCH'");
+    let frame_hour_prm = prm_conf.param.get("UTC_HOUR").expect("参数没找到:'UTC_HOUR'");
     let frame_hour = frame_hour_prm.words[0].clone();
-    let frame_min_prm = prm_conf.param.get("UTCM").expect("参数没找到:'UTCM'");
+    let frame_min_prm = prm_conf.param.get("UTC_MIN").expect("参数没找到:'UTC_MIN'");
     let frame_min = frame_min_prm.words[0].clone();
-    let frame_sec_prm = prm_conf.param.get("UTCS").expect("参数没找到:'UTCS'");
+    let frame_sec_prm = prm_conf.param.get("UTC_SEC").expect("参数没找到:'UTC_SEC'");
     let frame_sec = frame_sec_prm.words[0].clone();
 
     // 参数的 每秒记录个数

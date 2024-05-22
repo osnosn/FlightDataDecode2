@@ -51,7 +51,10 @@ class ARINC717():
             return
         prm_words = prm_param['words']
         prm_superframe = prm_param['superframe']
-        [res_A, res_B] = prm_param['res']
+        if len(prm_param['res'])>0:
+            [_, _, res_A, res_B, res_C] = prm_param['res'][0]
+        else:
+            [_, _, res_A, res_B, res_C] = [0, 0, 0.0, 1.0, 0.0]
 
         #每次都要取值的参数配置
         if "SuperFrameCounter" in self.prm['param']:
@@ -60,22 +63,22 @@ class ARINC717():
             print("参数没找到:\"{}\"".format( "SuperFrameCounter"))
             return
         prm_superFrameCnt = prm_superFrameCnt_prm['words'][0]
-        if "UTCH" in self.prm['param']:
-            frame_hour_prm = self.prm['param']["UTCH"]
+        if "UTC_HOUR" in self.prm['param']:
+            frame_hour_prm = self.prm['param']["UTC_HOUR"]
         else:
-            print("参数没找到:\"{}\"".format("UTCH"))
+            print("参数没找到:\"{}\"".format("UTC_HOUR"))
             return
         frame_hour = frame_hour_prm['words'][0]
-        if "UTCM" in self.prm['param']:
-            frame_min_prm = self.prm['param']["UTCM"]
+        if "UTC_MIN" in self.prm['param']:
+            frame_min_prm = self.prm['param']["UTC_MIN"]
         else:
-            print("参数没找到:\"{}\"".format("UTCM"))
+            print("参数没找到:\"{}\"".format("UTC_MIN"))
             return
         frame_min = frame_min_prm['words'][0]
-        if "UTCS" in self.prm['param']:
-            frame_sec_prm = self.prm['param']["UTCS"]
+        if "UTC_SEC" in self.prm['param']:
+            frame_sec_prm = self.prm['param']["UTC_SEC"]
         else:
-            print("参数没找到:\"{}\"".format("UTCS"))
+            print("参数没找到:\"{}\"".format("UTC_SEC"))
             return
         frame_sec = frame_sec_prm['words'][0]
 

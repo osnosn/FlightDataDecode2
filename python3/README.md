@@ -7,7 +7,7 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 **用于 ARINC 717 Aligned 格式的文件。**   
 
 当前目录是 python3 程序目录。  
-* `read_prm.py`   
+* `read_prm717.py`   
   - 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
   - 此程序读取PRM文件，显示指定参数的配置内容。   
   - 读取PRM文件，导出json格式的配置文件。(2024-05)   

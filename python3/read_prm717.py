@@ -94,6 +94,7 @@ def main():
         idx=[]
         for kk,vv in prm_conf['PRM'].items():
             if vv['name'].upper() == param:
+                #print(vv)
                 idx.append(kk)
                 print('编号:',kk)
                 print('  name:',vv['name'])
@@ -204,6 +205,7 @@ def prm_to_dict(prm_conf):
             "WordPerSec": int(prm_conf['DAT'][2]),
             "SuperFramePerCycle": int(prm_conf['SUP'][2]),
             "param": {
+                # 超级帧Counter的配置
                 "SuperFrameCounter": {
                     #words: [ subframe,word,lsb,msb,targetBit]
                     "words": [[
@@ -212,8 +214,8 @@ def prm_to_dict(prm_conf):
                         int(prm_conf['SUP'][5]),
                         int(prm_conf['SUP'][6]),
                         0]],
-                    #res: 系数 [A,B]; 转换公式, A+B*X
-                    "res": [0.0, 1.0],
+                    #res: 无系数 
+                    "res": [],
                     "signed": False,      #true=1,有符号; false=0,无符号; 
                     "signRecType": False, #true=01,有符号; false=00,无符号; 以这个为准.
                     "superframe": 0,   #superframe:0 非超级帧参数
@@ -250,30 +252,45 @@ def prm_to_dict(prm_conf):
         if len(vv['ConvConfig'])>0:
             for onechar in vv['ConvConfig']:
                 if onechar=='s':
+                    #发现一个意外的配置's',不知道是特殊含义，还是PRM文件损坏导致. 暂时按特例处理
                     onechar='1'
                     #print(vv['name'],vv['ConvConfig'])
                 PrmConf["param"][vv['name']]["ConvConfig"].append( int(onechar) )
         if 'min' in vv:
             PrmConf["param"][vv['name']]["range"].append( float(vv['min']) )
             PrmConf["param"][vv['name']]["range"].append( float(vv['max']) )
-        for mapv in vv['map'].values():
-            for mapv2 in mapv:
-                if mapv2['subframe'].find(',')>0:
+        for mapv in vv['map'].values():  #循环每一行PA31
+            subframeA=[]
+            subframe_old=""
+            words_tmp=[]
+            for mapv2 in mapv:  #单行PA31中，可能有多组记录
+                if len(subframe_old)<1:
+                    subframe_old = mapv2['subframe']
+                elif subframe_old != mapv2['subframe']:
+                    print("ERROR, 同组记录中,subframe不相同.",vv['name'],"参数的words配置会有错误")
+                comma_cnt=mapv2['subframe'].count(',')
+                if comma_cnt>0:
                     subframeA=mapv2['subframe'].split(',')
                 else:
                     subframeA=[mapv2['subframe'], ]
-                for subframe in subframeA:
-                    PrmConf["param"][vv['name']]["words"].append([
-                        int(subframe) if subframe!='ALL' else 0,
-                        int(mapv2['word']),
-                        int(mapv2['lsb']),
-                        int(mapv2['msb']),
-                        int(mapv2['target']) if mapv2['target']!='' else 0,
-                        ])
+                words_tmp.extend([
+                    -1,  #subframe
+                    int(mapv2['word']),
+                    int(mapv2['lsb']),
+                    int(mapv2['msb']),
+                    int(mapv2['target']) if mapv2['target']!='' else 0,
+                    ])
+            for subframe in subframeA:
+                for jj in range(0,len(words_tmp),5):
+                    words_tmp[jj]= int(subframe) if subframe !='ALL' else 0
+                #print(subframe,words_tmp,vv['name'])
+                #words_tmp会被修改，append()默认是加入list的引用。所以要copy()
+                PrmConf["param"][vv['name']]["words"].append(words_tmp.copy())
         #print('    编号 MinValue MaxValue EUConvType resI   resolutionA  resolutionB  resolutionC')
         #if len(vv['res'])>1:
         #    print(vv['name'],vv['res'])
         for mapv in vv['res'].values():
+            #有的参数,有多行系数配置, 所以套了两层
             PrmConf["param"][vv['name']]["res"].append([
                 int(mapv['MinValue']),
                 int(mapv['MaxValue']),
@@ -282,6 +299,7 @@ def prm_to_dict(prm_conf):
                 float(mapv['resolutionC']),
                 ])
         for mapv in vv['enum'].values():
+            #Options: 类型为DIS，枚举值
             for mapv2 in mapv:
                 #PrmConf["param"][vv['name']]["Options"][int(mapv2['val'])]=mapv2['text']
                 PrmConf["param"][vv['name']]["Options"].append([int(mapv2['val']), mapv2['text'] ])
@@ -301,13 +319,16 @@ def read_parameter_file(dataver):
               'name':'...',
               'namelong':'...',
               'map': {
-                '01': {
-                  'subframe': '...',
-                  'word': '...',
-                  'lsb': '...',
-                  'msb': '...',
-                  'target': '...',
-                },
+                '01': [
+                  {
+                    'subframe': '...',
+                    'word': '...',
+                    'lsb': '...',
+                    'msb': '...',
+                    'target': '...',
+                  },
+                  ...
+                ],
                 ...
               },
               'superframe':'...',
