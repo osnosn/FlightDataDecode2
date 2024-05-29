@@ -29,12 +29,17 @@ pub struct Param {
 }
 
 impl PrmConf {
-    pub fn new() -> Self {
-        let json_file = File::open("prm_conf320.json").expect("读取'prm_conf320.json'失败");
+    pub fn json(json_name: &str) -> Self {
+        //let json_file = File::open("prm_conf320.json").expect("读取'prm_conf320.json'失败");
+        let json_file =
+            File::open(json_name).expect(format!("读取json配置文件 \"{json_name}\" 失败").as_str());
         let reader = BufReader::new(json_file);
 
         // 转换成 Person 结构
-        let p: PrmConf = serde_json::from_reader(reader).expect("解析json配置文件失败");
+        let p: PrmConf = serde_json::from_reader(reader)
+            .expect(format!("解析json配置文件 \"{json_name}\" 失败").as_str());
+
+        println!("读取,解析json配置文件 \"{json_name}\" 成功.");
 
         // 通过方括号建立索引来访问部分数据
         //println!("{:#?}\n", p,);

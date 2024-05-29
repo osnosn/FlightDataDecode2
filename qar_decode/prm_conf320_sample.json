@@ -3,54 +3,65 @@
 /// 这仅仅是个示例json
 
 {
-   "PrmConf": {
-      "WordPerSec": 1024,
-         "SuperFramePerCycle": 16,
-         "param": {
-            "VRTG": {   //paramName
-               "words": [
-                  //[ subframe,word,lsb,msb,targetBit]
-                [0, 9, 1, 12, 1],
-                [0, 41, 1, 12, 1]
-               ],
-               "superframe": 0,   //0=非超级帧参数
-               "res": [0.0, 0.00390625],  //系数 [A,B]; 转换公式, A+B*X
-               "signed": true,   //true=1,有符号; false=0,无符号; 
+   "WordPerSec": 1024,
+   "SuperFramePerCycle": 16,
+   "param": {
+      "SuperFrameCounter": { //超级帧counter
+         "words": [
+            [ 2, 225, 1, 4, 0 ]
+         ],
+         "res": [],
+         "signed": false,
+         "signRecType": false,
+         "superframe": 0,
+         "RecFormat": "BNR",
+         "ConvConfig": [],
+         "Unit": "",
+         "LongName": "SUPER FRAME COUNTER"
+      },
+      "VRTG": {   //paramName
+         "words": [
+            //[ subframe,word,lsb,msb,targetBit]
+            [0, 9, 1, 12, 1],
+            [0, 41, 1, 12, 1]
+         ],
+         "res": [0.0, 0.00390625],  //系数 [A,B]; 转换公式, A+B*X
+         "signed": true,   //true=1,有符号; false=0,无符号; 
 
-               //符号位不知道以那个为准.
-               "signRecType": true, //true=01,有符号; false=00,无符号;
-               "RecFormat": "BNR",   //BNR,BCD
-               "ConvConfig": [], // 1443 BCD
-               "Unit": "G",         //计量单位。解码过程未使用,可以不填写
-               "LongName": "Normal acceleration"    //解码过程未使用,可以不填写
-            },
-            "ALT_BARO": {
-               "words": [
-                  [0, 716, 1, 12, 1, 0, 715, 8, 12, 0]
-               ],
-               "superframe": 0,   //0=非超级帧参数
-               "res": [0.0, 1.0], //默认值(无需换算)
-               "signed": true,   //true=1,有符号; false=0,无符号; 
-               "signRecType": true, //true=01,有符号; false=00,无符号;
-               "RecFormat": "BNR",   //BNR,BCD
-               "ConvConfig": [], // 1443 BCD
-               "Unit": "G",         //计量单位。解码过程未使用,可以不填写
-               "LongName": "" 
-            },
-            "DAY": {
-               "words": [
-                  [1, 17, 1, 6, 0]
-               ],
-               "superframe": 4,   //0=非超级帧参数
-               "res": [0.0, 1.0],
-               "signed": false,   //true=1,有符号; false=0,无符号; 
-               "signRecType": false, //true=01,有符号; false=00,无符号;
-               "RecFormat": "BCD",   //BNR,BCD
-               "ConvConfig": [2,4], // BCD
-               "Unit": "",
-               "LongName": "" 
-            }
-         }
+         //符号位不知道以那个为准.
+         "signRecType": true, //true=01,有符号; false=00,无符号;
+         "superframe": 0,   //0=非超级帧参数
+         "RecFormat": "BNR",   //BNR,BCD
+         "ConvConfig": [], // 1443 BCD
+         "Unit": "G",         //计量单位。解码过程未使用,可以不填写
+         "LongName": "Normal acceleration"    //解码过程未使用,可以不填写
+      },
+      "ALT_BARO": {
+         "words": [
+            [ 0, 716, 1, 12, 1, 0, 715, 8, 12, 0 ]
+         ],
+         "superframe": 0,   //0=非超级帧参数
+         "res": [0.0, 1.0], //默认值(无需换算)
+         "signed": true,   //true=1,有符号; false=0,无符号; 
+         "signRecType": true, //true=01,有符号; false=00,无符号;
+         "RecFormat": "BNR",   //BNR,BCD
+         "ConvConfig": [], // 1443 BCD
+         "Unit": "G",         //计量单位。解码过程未使用,可以不填写
+         "LongName": "" 
+      },
+      "DAY": {
+         "words": [
+            [ 1, 17, 1, 6, 0 ]
+         ],
+         "superframe": 4,   //0=非超级帧参数
+         "res": [0.0, 1.0],
+         "signed": false,   //true=1,有符号; false=0,无符号; 
+         "signRecType": false, //true=01,有符号; false=00,无符号;
+         "RecFormat": "BCD",   //BNR,BCD
+         "ConvConfig": [2,4], // BCD
+         "Unit": "",
+         "LongName": "" 
+      }
    }
 }
 

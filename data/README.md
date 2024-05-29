@@ -21,6 +21,8 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
    ----  图2  ----   
 <img src="https://github.com/osnosn/FlightDataDecode2/raw/main/data/airfase-superframe.png" width="500" />   
    ----  图3  ----   
+<img src="https://github.com/osnosn/FlightDataDecode2/raw/main/data/airfase-app.jpg" width="500" />   
+   ----  图4  ----   
 
 如果从 AGS 导出解码配置，
 * 参考另一个项目 【[osnosn/FlightDataDecode/](https://github.com/osnosn/FlightDataDecode/)】   

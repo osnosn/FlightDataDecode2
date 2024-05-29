@@ -15,8 +15,10 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * qar_decode.  解码个别参数。   
   - `qar_decode5` 解1024.PRM   
   - `qar_decode7` 解320.PRM   
-  - `qar_decode8` 解320.PRM, 配置来自json文件。   
-    - 从`prm_conf320.json`文件中读取解码配置。   
+  - `qar_decode8` 解320.PRM, 配置来自json文件。(2024-05)   
+    - 从`prm_conf320.json`文件中读取解码配置。可以用`read_prm717.py`生成json配置文件。   
+    - 解码参数后, 写入自定义格式文件.dat。可以用 `ALL_read_datafile.py` 来读取,导入pd.DataFrame中。   
+    - 解码程序没写完。只处理了 BNR 格式的数据。其他类型(ISO,BCD)还没有处理。   
 * qar_decode_lua.  解码个别参数。   
   - `qar_decode6` 嵌入lua脚本测试   
 
@@ -24,10 +26,12 @@ data/ 目录，有示例数据。
 python3/ 目录，有几个 py3 程序。  
 
 ### 更新  
-* **2024-03 最后更新**   
+* **2024-05 最后更新**   
   - rust 程序  
   - `python3/read_prm.py` 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
   - `python3/decode7_arinc717_aligned.py` 解320.PRM, raw320.dat   
+  - `qar_decode8`   
+  - `ALL_read_datafile.py`   
 
 ### 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   

@@ -9,6 +9,15 @@ source = "registry+https://rsproxy.cn/crates.io-index"
 checksum = "f1fdabc7756949593fe60f30ec81974b613357de856987752631dea1e3394c80"
 
 [[package]]
+name = "bincode"
+version = "1.3.3"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.5.0"
 source = "registry+https://rsproxy.cn/crates.io-index"
@@ -25,10 +34,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "bzip2"
+version = "0.4.4"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "bdb116a6ef3f6c3698828873ad02c3014b3c85cadb88496095628e3ef1e347f8"
+dependencies = [
+ "bzip2-sys",
+ "libc",
+]
+
+[[package]]
+name = "bzip2-sys"
+version = "0.1.11+1.0.8"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "736a955f3fa7875102d57c82b8cac37ec45224a07fd32d58f9f7a186b6cd4cdc"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.90"
 source = "registry+https://rsproxy.cn/crates.io-index"
 checksum = "8cd6604a82acf3039f1144f54b8eb34e91ffba622051189e71b781822d5ee1f5"
+dependencies = [
+ "jobserver",
+ "libc",
+]
 
 [[package]]
 name = "cfg-if"
@@ -68,6 +102,15 @@ source = "registry+https://rsproxy.cn/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "jobserver"
+version = "0.1.31"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "d2b099aaa34a9751c5bf0878add70444e1ed2dd73f347be99003d4577277de6e"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "lexopt"
 version = "0.3.0"
 source = "registry+https://rsproxy.cn/crates.io-index"
@@ -78,6 +121,26 @@ name = "libc"
 version = "0.2.153"
 source = "registry+https://rsproxy.cn/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
+
+[[package]]
+name = "liblzma"
+version = "0.3.1"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "717c314a016664dec8c5b42f72dce3b23bc42b0399b712604c816d4f528ec99a"
+dependencies = [
+ "liblzma-sys",
+]
+
+[[package]]
+name = "liblzma-sys"
+version = "0.3.3"
+source = "registry+https://rsproxy.cn/crates.io-index"
+checksum = "2897528b23db157f02481ed7dd11d05421885fd5b5b4020c5ddb95bef6d47b4a"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
+]
 
 [[package]]
 name = "linux-raw-sys"
@@ -179,7 +242,10 @@ dependencies = [
 name = "qar_decode"
 version = "0.2.2"
 dependencies = [
+ "bincode",
+ "bzip2",
  "lexopt",
+ "liblzma",
  "memmap2",
  "serde",
  "serde_json",

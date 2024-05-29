@@ -266,11 +266,12 @@ def prm_to_dict(prm_conf):
             for mapv2 in mapv:  #单行PA31中，可能有多组记录
                 if len(subframe_old)<1:
                     subframe_old = mapv2['subframe']
-                elif subframe_old != mapv2['subframe']:
-                    print("ERROR, 同组记录中,subframe不相同.",vv['name'],"参数的words配置会有错误")
                 comma_cnt=mapv2['subframe'].count(',')
                 if comma_cnt>0:
                     subframeA=mapv2['subframe'].split(',')
+                    if subframe_old != mapv2['subframe']:
+                        #有逗号的情况下，不应该不同
+                        print("ERROR, 同组记录中,subframe不相同.",vv['name'],"参数的words配置会有错误")
                 else:
                     subframeA=[mapv2['subframe'], ]
                 words_tmp.extend([
