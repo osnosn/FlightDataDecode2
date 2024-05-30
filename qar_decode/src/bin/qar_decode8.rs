@@ -107,7 +107,7 @@ fn main() {
             &prm_superFrameCnt_prm,
             &prm_superFrameCnt,
             &args.param,
-            0xff,  //verbose
+            0xff, //verbose
         );
 
         // 写入的文件名
@@ -144,15 +144,18 @@ fn main() {
             }
         }
 
-        println!("");
+        println!();
         println!(" The length of data is {}.", buflen);
         println!(
             " Parameter \"{}\" write to CSV file: \"{}\".",
             args.param, filename_write
         );
-        println!("");
+        println!();
     }
-
+    show_mem(&args);
+}
+//对于Linux系统，显示内存占用情况
+fn show_mem(args: &CmdLineArgs::Args) {
     #[cfg(target_os = "linux")]
     if args.mem {
         // --begin--查看内存占用(linux)
@@ -191,7 +194,8 @@ pub struct OneParamTable {
     data_type: String,
     info: String,
 }
-use bincode::Error;
+use std::io::Error;
+//use bincode::Error;
 //use bincode::{serialize, Error};
 //use std::io::Write;
 impl OneParamTable {
@@ -234,8 +238,8 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     println!("RAW数据文件打开成功：{}", filename_read);
 
     // 使用mmap映射
-    let buf = unsafe { MmapOptions::new().map(&rfile).expect("Mmap映射创建失败") };
-    let buflen = buf.len();
+    let rawbuf = unsafe { MmapOptions::new().map(&rfile).expect("Mmap映射创建失败") };
+    let rawbuflen = rawbuf.len();
 
     // 写入的文件名
     let filename_write = args.outfile.as_str();
@@ -256,8 +260,8 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
         ii_prm += 1;
         // 解码一个参数
         let PrmValue = get_param(
-            &buf,
-            buflen,
+            &rawbuf,
+            rawbuflen,
             &prm_conf,
             &prm_superFrameCnt_prm,
             &prm_superFrameCnt,
@@ -265,7 +269,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
             0xf, //verbose
         );
 
-        let buf: Vec<u8>;
+        let mut buf: Vec<u8> = vec![]; //序列化的缓存
         let mut one_param_table = OneParamTable {
             selfsize: 3,
             data_point: 2,
@@ -278,8 +282,8 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
             data_type: "float".to_string(),
             info: r#"{"other":"other msg"}"#.to_string(),
         };
-        let mut param_rate: f32 =0.0;
-        // 以csv格式写入文件
+        let mut param_rate: f32 = 0.0;
+        // 以自定义格式写入dat文件
         match &PrmValue {
             PrmValue::Float(val) => {
                 /*
@@ -288,14 +292,17 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 */
                 one_param_table.val_size = 4; //单个值的size
                 one_param_table.data_type = "float".to_string();
-                if val.len()>2 {
+                if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
                 }
-                let mut pFloat: Vec<f32> = vec![];
+                //let mut pFloat: Vec<f32> = vec![];
                 for vv in val {
-                    pFloat.push(vv.v);
+                    buf.write_all(&vv.v.to_le_bytes()).unwrap(); //仅返回 Ok(()),不会出错
+                                                                 //pFloat.push(vv.v);
                 }
-                buf = bincode::serialize(&pFloat).expect("bincode::serialize(f32)失败");
+                //bincode序列化vec,最前面有8byte的vec size, 不合适使用.
+                //buf = bincode::serialize(&pFloat).expect("bincode::serialize(f32)失败");
+
                 //let opt=liblzma_sys::lzma_options_lzma;
                 //let buf2:Vec<u8>= liblzma_sys::lzma_alone_encoder(buf,opt);
             }
@@ -306,61 +313,74 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 */
                 one_param_table.val_size = 4; //单个值的size
                 one_param_table.data_type = "int".to_string();
-                if val.len()>2 {
+                if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
                 }
-                let mut pInt: Vec<i32> = vec![];
                 for vv in val {
-                    pInt.push(vv.v);
+                    buf.write_all(&vv.v.to_le_bytes()).unwrap(); //仅返回 Ok(()),不会出错
                 }
-                buf = bincode::serialize(&pInt).expect("bincode::serialize(i32)失败");
             }
             PrmValue::Str(val) => {
                 one_param_table.val_size = 0; //单个值的size
                 one_param_table.data_type = "str".to_string();
-                if val.len()>2 {
+                if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
                 }
-                buf = serde_json::to_string(&val)
+                let mut data_arr: Vec<(f32, String)> = vec![];
+                for vv in val {
+                    data_arr.push((vv.t, vv.v.clone()));
+                }
+                buf = serde_json::to_string(&data_arr)
                     .expect("serde_json::to_string失败")
                     .into_bytes();
             }
         }
-        if param_rate !=0.0 && param_rate <=1.0 {
-            one_param_table.rate = (1.0/param_rate) as i16;
+        if param_rate != 0.0 && param_rate <= 1.0 {
+            one_param_table.rate = (1.0 / param_rate) as i16;
         } else {
             one_param_table.rate = (param_rate * -1.0) as i16;
         }
         use std::io::Read;
+        //show_mem(&args);
 
-        /*
-        //使用7zXZ压缩,lzma
-        use liblzma::read::XzEncoder;
-        one_param_table.compress= "xz".to_string();
-        let mut buf2: Vec<u8> = Vec::new();
-        XzEncoder::new(buf.as_slice(), 7)
-            .read_to_end(&mut buf2)
-            .expect("xz(lzma)失败");
-            */
-
-        //使用bzip2压缩,bz2
-        //use std::io::prelude::*;
-        use bzip2::read::BzEncoder;
-        use bzip2::Compression;
-        one_param_table.compress= "bzip2".to_string();
-        let mut buf2: Vec<u8> = Vec::new();
-        BzEncoder::new(buf.as_slice(),Compression::best())
-            .read_to_end(&mut buf2)
-            .expect("bzip2失败");
+        let mut buf2: Vec<u8> = Vec::new(); //压缩的缓存
+        if false {
+            //使用7zXZ压缩,lzma;
+            //--压缩参数9:需占680-700MB内存.
+            //--压缩参数7:需占200-220MB内存.
+            //--压缩参数6:需占80-100MB内存.
+            //--参数 6,7,9,耗时都比bz2多一倍。例如:bz2用6秒,xz要用10-11秒,
+            //    -- 文件还比bz2的大一点,1.4M的文件大约多80k.
+            //--压缩参数5:需占80-100MB内存. 耗时少了一点点, 但文件更大了.
+            //----不知道xz的后门问题,是否受到影响----
+            use liblzma::read::XzEncoder;
+            one_param_table.compress = "xz".to_string();
+            XzEncoder::new(buf.as_slice(), 6)
+                .read_to_end(&mut buf2)
+                .expect("xz(lzma)失败");
+        } else {
+            //使用bzip2压缩,bz2; (需占7-9MB内存,占内存较小)
+            //use std::io::prelude::*;
+            use bzip2::read::BzEncoder;
+            use bzip2::Compression;
+            one_param_table.compress = "bzip2".to_string();
+            BzEncoder::new(buf.as_slice(), Compression::best())
+                .read_to_end(&mut buf2)
+                .expect("bzip2失败");
+        }
 
         one_param_table.selfsize = one_param_table.length() as u16; //单个table自身的size
         data_point += one_param_table.selfsize as u64; //用于指向DATA的指针,加上param_table的长度
         one_param_table.data_size = buf2.len() as u32; //压缩数据的size
         PRM_data.push(buf2);
         PRM_table.push(one_param_table);
-    }
 
-    // 创建一个文件，用于写入csv格式的数据
+        //show_mem(&args);
+    }
+    show_mem(&args);
+    println!("解码完成，准备写入dat文件.");
+
+    // 创建一个文件，用于写入自定义格式的数据
     let mut wfile = File::create(filename_write)
         .expect(format!("创建文件失败:\"{}\"", filename_write).as_str());
 
@@ -393,8 +413,8 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     //把json转为Value; 再把Value转为json,为了的到紧凑的json格式
     let mut meta_value: serde_json::Value =
         serde_json::from_str(meta).expect("serde_json::from_str失败");
-    meta_value["MetaData"]["ParamConfigFile"]=serde_json::Value::String(args.json.clone());
-    meta_value["MetaData"]["FileName"]=serde_json::Value::String(filename_read.to_string());
+    meta_value["MetaData"]["ParamConfigFile"] = serde_json::Value::String(args.json.clone());
+    meta_value["MetaData"]["FileName"] = serde_json::Value::String(filename_read.to_string());
     let meta_bytes = serde_json::to_vec(&meta_value).expect("serde_json::to_string失败");
     //读取 自定义数据文件的的格式描述
     let Custom_Detail = std::fs::read("data/Custom_DataFile_Format_Description.txt")
@@ -422,7 +442,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
         let mut buf: Vec<u8> = vec![];
         PRM_table[ii]
             .serialize(&mut buf)
-            .expect("bincode::serialize(f32)失败");
+            .expect("PRM_table serialize失败");
         wfile.write_all(&buf).expect("写入失败");
     }
     //------ 写 DATA ---------
@@ -430,12 +450,15 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
         wfile.write_all(&PRM_data[ii]).expect("写入失败");
     }
 
-    println!("");
+    println!();
     println!(" Decoded Parameters Count: {}.", ii_prm);
-    println!(" All Parameters write to DATA file: \"{}\".", filename_write);
+    println!(
+        " All Parameters write to DATA file: \"{}\".",
+        filename_write
+    );
     println!("     Header size: {}", header_size);
     println!("     Parameter table size: {}", param_table_total_size);
-    println!("");
+    println!();
 }
 //列出prm配置中的所有参数名称
 fn paramlist(prm_conf: prm_conf::PrmConf) {
@@ -501,14 +524,11 @@ fn get_param(
     let mut supcount_idx: i32 = 0; //超级帧索引, 0-15
     let mut word_cnt: usize = 0; //word计数，16bit字计数, (这个计数没什么用)
     let mut byte_cnt: usize = 0; //byte计数，字节计数。根据单/双数,也能确定word拼接时的位置。
-    let mut value_f32: f32; //解码后的工程值
-    let value_i32: i32 = 0; //解码后的工程值
-    let value_str: String = Default::default(); //解码后的工程值
     let mut frame_time: f32; //frame时间轴
 
     let mut ValType = "str"; //默认为str
     let mut PrmDict_f32: Vec<PrmDict<f32>> = vec![];
-    let mut PrmDict_i32: Vec<PrmDict<i32>> = vec![];
+    let PrmDict_i32: Vec<PrmDict<i32>> = vec![];
     let mut PrmDict_str: Vec<PrmDict<String>> = vec![];
 
     println!("--- begin: {prm_name} ---");
@@ -526,7 +546,7 @@ fn get_param(
         {
             if VERBOSE & 0x2 > 0 {
                 if dword_err & 0x2 > 0 {
-                    //targetBit !=0 不知道如何拼接，暂时忽略这个配置。只给出提示信息。
+                    //通常 SuperFrameCounter , targetBit==0
                     println!("--> INFO.targetBit !=0, 取值结果可能不正确,SuperFrameCounter");
                 }
                 if dword_err & 0x1 > 0 {
@@ -583,30 +603,59 @@ fn get_param(
                         continue 'SFrame;
                     }
                 }
-                ValType = "float";
-                value_f32 = (dword_raw as f32) * res_B + res_A; //通过系数，转换为工程值
                 frame_time = (subframe_cnt as f32) + (rate_cnt / param_rate);
-                if VERBOSE & 0x80 > 0 && word_cnt < 128000 {
-                    println!(
-                        "subframe:{}, time:{:.5}, val:{:?}",
-                        subframe_idx, frame_time, value_f32
-                    );
-                }
 
-                match ValType {
-                    "float" => PrmDict_f32.push(PrmDict {
+                // 处理BCD, 即,十进制数值
+                // 从get_dword_raw()中,移动到这里处理。
+                if "BCD" == prm_param.RecFormat {
+                    ValType = "float";
+                    let mut value_i32: i32 = 0;
+                    let mut ii = 0;
+                    //借用，倒序
+                    for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
+                        let bits_mask: i32 = (1 << bcd_bits) - 1;
+                        value_i32 += (bits_mask & dword_raw) * (10_i32.pow(ii));
+                        dword_raw >>= bcd_bits;
+                        ii += 1;
+                    }
+                    //BCD也有转换系数
+                    let value_f32: f32 = (value_i32 as f32) * res_B + res_A; //通过系数，转换为工程值
+                                                                             //println!("=>BCD:{value_f32}");
+                    PrmDict_f32.push(PrmDict {
                         t: frame_time,
                         v: value_f32,
-                    }),
-                    "int" => PrmDict_i32.push(PrmDict {
+                    });
+                } else if prm_param.RecFormat.starts_with("ISO") {
+                    ValType = "str";
+                    let mut value_str = "".to_string();
+                    //借用，倒序
+                    for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
+                        let bits_mask: i32 = (1 << bcd_bits) - 1;
+                        //value_str.push(std::char::from_u32((bits_mask & dword_raw) as u32).unwrap());
+                        value_str.push(((bits_mask & dword_raw) as u8) as char);
+                        dword_raw >>= bcd_bits;
+                    }
+                    //println!("=>ISO:{value_str}");
+                    PrmDict_str.push(PrmDict {
                         t: frame_time,
-                        v: value_i32,
-                    }),
-                    _ => PrmDict_str.push(PrmDict {
+                        v: value_str,
+                    });
+                } else {
+                    //处理BNR,DIS
+                    ValType = "float";
+                    let value_f32: f32 = (dword_raw as f32) * res_B + res_A; //通过系数，转换为工程值
+                    if VERBOSE & 0x80 > 0 && word_cnt < 128000 {
+                        println!(
+                            "subframe:{}, time:{:.5}, val:{:?}",
+                            subframe_idx, frame_time, value_f32
+                        );
+                    }
+                    PrmDict_f32.push(PrmDict {
                         t: frame_time,
-                        v: value_str.clone(),
-                    }),
+                        v: value_f32,
+                    });
                 }
+
                 //一个subframe只有一个记录，输出一次即可
                 rate_cnt += 1.0;
             }
@@ -672,18 +721,10 @@ fn get_dword_raw(
         //println!("--> INFO.signed=true, 计算补码");
     }
     // 处理BCD, 即,十进制数值
-    if "BCD" == param_prm.RecFormat {
-        let mut bcd_dword = 0;
-        let mut ii = 0;
-        //借用，倒序
-        for bcd_bits in (&param_prm.ConvConfig).iter().rev() {
-            let bits_mask: i32 = (1 << bcd_bits) - 1;
-            bcd_dword += (bits_mask & dword_raw) * (10_i32.pow(ii));
-            dword_raw >>= bcd_bits;
-            ii += 1;
-        }
-        dword_raw = bcd_dword;
-    }
+    // 原本在这里，现在移动到 get_param() 中处理。
+    //if "BCD" == param_prm.RecFormat {
+    //...
+    //}
     return Some(dword_raw);
 }
 //寻找同步字
@@ -799,7 +840,8 @@ fn showHelp(bin_name: String) {
     println!("      -a, --all                解码所有的参数名");
     println!("      -p, --param  VRTG        解码一个参数名");
     println!("      -r /path/raw.dat         指定读取raw原始文件");
-    println!("      -w /path/xxxx.csv        指定写入csv文件");
+    println!("      -w /path/xxxx.csv     如有 -p, 解码单个参数,写入csv文件");
+    println!("      -w /path/xxxx.dat     如有 -a, 解码所有参数,写入自定义格式的dat文件");
     println!("      --mem        打印内存占用情况");
     println!(" 说明: ");
     println!("   使用mmap把raw文件映射到内存，然后再解码参数。");

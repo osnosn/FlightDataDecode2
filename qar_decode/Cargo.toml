@@ -8,7 +8,6 @@ description = "Use PRM decode Aligned raw.dat"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bincode = { version = "1.3.3", registry = "rsproxy" }
 bzip2 = { version = "0.4.4", registry = "rsproxy" }
 lexopt = { version = "0.3.0", registry = "rsproxy" }
 liblzma = { version = "0.3.1", registry = "rsproxy" }
