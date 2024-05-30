@@ -20,6 +20,12 @@ use std::io::Write;
 #[cfg(target_os = "linux")]
 use std::process;
 
+use rust_embed_for_web::{EmbedableFile, RustEmbed};
+#[derive(RustEmbed)]
+#[folder = "embedFile/"]
+#[gzip = true]
+struct Asset;
+
 #[path = "../CmdLineArgs8.rs"]
 mod CmdLineArgs;
 
@@ -32,7 +38,12 @@ pub struct PrmDict<T> {
     v: T,
 }
 #[derive(Serialize, Debug)]
-pub enum PrmValue {
+pub struct PrmValue {
+    val: PrmType,
+    info: String,
+}
+#[derive(Serialize, Debug)]
+pub enum PrmType {
     Float(Vec<PrmDict<f32>>),
     Int(Vec<PrmDict<i32>>),
     Str(Vec<PrmDict<String>>),
@@ -49,6 +60,19 @@ fn main() {
     }
     if args.help || args.help2 {
         showHelp(args.bin_name);
+        return ();
+    }
+
+    if args.custom_detail {
+        //显示Custom_DataFile_Description
+        if let Some(embedFile) = Asset::get("Custom_DataFile_Format_Description.txt") {
+            // embedFile.data() -> &[u8]
+            let Custom_Detail = embedFile.data();
+            //Custom_Detail = embedFile.data_gzip().expect("Custom_DataFile_Format_Description.txt ReadError"); //返回gzip压缩后的内容
+            println!("{}", String::from_utf8_lossy(&Custom_Detail));
+        } else {
+            println!("Custom_DataFile_Format_Description.txt NotFound.");
+        }
         return ();
     }
 
@@ -119,23 +143,23 @@ fn main() {
             .write_all("time,value\r\n".as_bytes())
             .expect("写入失败");
 
-        match PrmValue {
+        match PrmValue.val {
             // 以csv格式写入文件
-            PrmValue::Float(val) => {
+            PrmType::Float(val) => {
                 for vv in val {
                     wfile
                         .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
                         .expect("写入失败");
                 }
             }
-            PrmValue::Int(val) => {
+            PrmType::Int(val) => {
                 for vv in val {
                     wfile
                         .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
                         .expect("写入失败");
                 }
             }
-            PrmValue::Str(val) => {
+            PrmType::Str(val) => {
                 for vv in val {
                     wfile
                         .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
@@ -280,12 +304,12 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
             name: param.clone(),
             compress: "bzip2".to_string(),
             data_type: "float".to_string(),
-            info: r#"{"other":"other msg"}"#.to_string(),
+            info: PrmValue.info,
         };
         let mut param_rate: f32 = 0.0;
         // 以自定义格式写入dat文件
-        match &PrmValue {
-            PrmValue::Float(val) => {
+        match &PrmValue.val {
+            PrmType::Float(val) => {
                 /*
                 let buf = serde_json::to_string(&val).expect("serde_json::to_string失败");
                 wfile.write_all(buf.as_bytes()).expect("写入失败");
@@ -306,7 +330,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 //let opt=liblzma_sys::lzma_options_lzma;
                 //let buf2:Vec<u8>= liblzma_sys::lzma_alone_encoder(buf,opt);
             }
-            PrmValue::Int(val) => {
+            PrmType::Int(val) => {
                 /*
                 let buf = serde_json::to_string(&val).expect("serde_json::to_string失败");
                 wfile.write_all(buf.as_bytes()).expect("写入失败");
@@ -320,7 +344,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                     buf.write_all(&vv.v.to_le_bytes()).unwrap(); //仅返回 Ok(()),不会出错
                 }
             }
-            PrmValue::Str(val) => {
+            PrmType::Str(val) => {
                 one_param_table.val_size = 0; //单个值的size
                 one_param_table.data_type = "str".to_string();
                 if val.len() > 2 {
@@ -417,8 +441,20 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     meta_value["MetaData"]["FileName"] = serde_json::Value::String(filename_read.to_string());
     let meta_bytes = serde_json::to_vec(&meta_value).expect("serde_json::to_string失败");
     //读取 自定义数据文件的的格式描述
+    /*
     let Custom_Detail = std::fs::read("data/Custom_DataFile_Format_Description.txt")
         .expect("读取data/Custom_DataFile_Format_Description.txt失败");
+    */
+    let Custom_Detail;
+    if let Some(embedFile) = Asset::get("Custom_DataFile_Format_Description.txt") {
+        // embedFile.data() -> &[u8]
+        Custom_Detail = embedFile.data();
+    } else {
+        Custom_Detail = br#"Custom_DataFile_Format_Description.txt NotFound"#;
+        println!("embedFile not found.");
+    }
+    //println!("{}",String::from_utf8_lossy(&Custom_Detail));  //debug
+
     let header_size: u32 =
         header_tag.len() as u32 + 4 + meta_bytes.len() as u32 + 1 + Custom_Detail.len() as u32 + 1;
     wfile
@@ -531,6 +567,15 @@ fn get_param(
     let PrmDict_i32: Vec<PrmDict<i32>> = vec![];
     let mut PrmDict_str: Vec<PrmDict<String>> = vec![];
 
+    //用于返回值 PrmValue.info
+    let mut info_json: serde_json::Value =
+        serde_json::from_str("{}").expect("serde_json::from_str失败");
+    info_json["RecFormat"] = serde_json::Value::String(prm_param.RecFormat.clone());
+    if prm_param.RecFormat == "DIS" {
+        info_json["Options"] =
+            serde_json::to_value(prm_param.Options.clone()).expect("serde_json,Options失败");
+    }
+
     println!("--- begin: {prm_name} ---");
     let mut dword_err: u8 = 0x0; //用于记录get_dword_raw()的错误标记
     loop {
@@ -554,11 +599,27 @@ fn get_param(
                     println!("--> INFO.targetBit !=0, 取值结果可能不正确,{prm_name}");
                 }
             }
+            let info_bytes = serde_json::to_string(&info_json).expect("serde_json::to_string失败");
             //返回参数解码后的值
             match ValType {
-                "float" => break PrmValue::Float(PrmDict_f32),
-                "int" => break PrmValue::Int(PrmDict_i32),
-                _ => break PrmValue::Str(PrmDict_str),
+                "float" => {
+                    return PrmValue {
+                        val: PrmType::Float(PrmDict_f32),
+                        info: info_bytes,
+                    }
+                }
+                "int" => {
+                    return PrmValue {
+                        val: PrmType::Int(PrmDict_i32),
+                        info: info_bytes,
+                    }
+                }
+                _ => {
+                    return PrmValue {
+                        val: PrmType::Str(PrmDict_str),
+                        info: info_bytes,
+                    }
+                }
             }
         }
         /*
@@ -830,18 +891,20 @@ fn find_sync(
     }
 }
 fn showHelp(bin_name: String) {
-    println!(
-        "Usage: {bin_name} [-r data/raw.dat] [-w data/output_data.csv] [-h | --help] [1|2|3|4|5|6|7|h|m|s|sup|day]"
-    );
+    println!("Usage: {bin_name} [-r raw.dat] [-w out.csv] [-a|-p GS] [-h | --help]");
     println!("   Detail:");
     println!("      -h        简略的命令行帮助");
+    println!("      --show    显示 自定义格式文件的格式说明");
     println!("      -j, --json  /path/prm.json   指定json配置文件路径");
     println!("      -l, --paramlist          列出配置中所有的的参数名");
     println!("      -a, --all                解码所有的参数名");
     println!("      -p, --param  VRTG        解码一个参数名");
     println!("      -r /path/raw.dat         指定读取raw原始文件");
-    println!("      -w /path/xxxx.csv     如有 -p, 解码单个参数,写入csv文件");
-    println!("      -w /path/xxxx.dat     如有 -a, 解码所有参数,写入自定义格式的dat文件");
+    println!("      -w /path/out.csv     如有 -p, 解码单个参数,写入csv文件");
+    println!("      -w /path/out.dat     如有 -a, 解码所有参数,写入自定义格式的dat文件");
+    println!(
+        "           自定义格式的out.dat文件,可以用ALL_read_datafile.py读取,并导入pd.DataFrame()"
+    );
     println!("      --mem        打印内存占用情况");
     println!(" 说明: ");
     println!("   使用mmap把raw文件映射到内存，然后再解码参数。");
@@ -853,6 +916,6 @@ fn showHelp(bin_name: String) {
     println!("   增加subframe判断，处理了符号位。");
     println!("   更改使用hashmap保存配置。配置中增加targetBit。");
     println!("   增加superFrame配置。尝试解码超级帧参数。");
-    println!("   增加BCD格式的处理。");
+    println!("   可以处理BNR,DIS,BCD,ISO格式的参数。");
     println!("      author: osnosn@126.com");
 }

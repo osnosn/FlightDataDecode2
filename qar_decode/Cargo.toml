@@ -1,6 +1,6 @@
 [package]
 name = "qar_decode"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["osnosn <osnosn@126.com>"]
 description = "Use PRM decode Aligned raw.dat"
@@ -12,6 +12,7 @@ bzip2 = { version = "0.4.4", registry = "rsproxy" }
 lexopt = { version = "0.3.0", registry = "rsproxy" }
 liblzma = { version = "0.3.1", registry = "rsproxy" }
 memmap2 = { version = "0.9.4", registry = "rsproxy" }
+rust-embed-for-web = { version = "11.2.1", registry = "rsproxy" }
 serde = { version = "1.0.202", registry = "rsproxy", features = ["derive"] }
 serde_json = { version = "1.0.117", registry = "rsproxy" }
 

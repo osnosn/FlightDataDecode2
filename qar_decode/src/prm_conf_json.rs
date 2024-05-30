@@ -20,12 +20,18 @@ pub struct Param {
     pub superframe: usize,  //0=非超级帧参数
     pub res: Vec<[f32; 5]>, //系数 A,B; 转换公式, A+B*X
     pub signed: bool,       //true=1,有符号; false=0,无符号;
-    //符号位不知道以那个为准.
+    //符号位不知道以那个为准.程序中用signRecType, 忽略signed
     pub signRecType: bool, //true=01,有符号; false=00,无符号;
     pub RecFormat: String,
     pub ConvConfig: Vec<u8>, // 1443 BCD
     pub Unit: String,        //计量单位。解码过程未使用,可以不填写
     pub LongName: String,    //解码过程未使用,可以不填写
+    #[serde(default = "default_options")]
+    pub Options: Vec<(i16, String)>, //DIS 的枚举值
+}
+//为Options提供默认值
+fn default_options() -> Vec<(i16, String)> {
+    vec![]
 }
 
 impl PrmConf {

@@ -9,6 +9,7 @@ pub struct Args {
     pub allparam: bool,
     pub rawfile: String,
     pub outfile: String,
+    pub custom_detail: bool,
     pub cmd: String,
 }
 pub fn parse_args() -> Result<Args, lexopt::Error> {
@@ -24,6 +25,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
     let mut allparam = false;
     let mut rawfile = None;
     let mut outfile = None;
+    let mut custom_detail = false;
     let mut cmd = None;
     let mut parser = lexopt::Parser::from_env();
     //let bin_name = parser.bin_name().unwrap_or("myapp").to_string();
@@ -60,6 +62,9 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
                 // -h
                 help = true;
             }
+            Long("show") => {
+                custom_detail = true;
+            }
             Long("help") => {
                 // --help
                 help2 = true;
@@ -95,6 +100,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         allparam,
         rawfile: rawfile.unwrap_or("".to_string()), //缺省值为 ""
         outfile: outfile.unwrap_or("data/output_data.csv".to_string()),
+        custom_detail,
         cmd: cmd.unwrap_or("".to_string()), //缺省值为 ""
     })
 }
