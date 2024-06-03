@@ -14,10 +14,13 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * `ALL_read_datafile.py` 用于读取, 存放于自定义格式文件中的,解码后的参数, 并导入pd.DataFrame中。(2024-05)   
 * `dump_rawdat_aligned.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 aligned格式。   
 * `dump_rawdat_bitstream.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 bitstream格式。  
-* `decode7_arinc717_aligned.py` 解320.PRM, raw320.dat   
-  - 用 `param_prm7.py` 解码配置320.PRM   
-* `decode8_arinc717_aligned.py` 解320.PRM, raw320.dat   
-  - 用 `prm_conf320.json` 解码配置320.PRM   
+* `decode5_arinc717_aligned.py` 解320.PRM, raw320.dat   
+  - 用 `param_prm5.py` 解码配置320.PRM   
+* `decode6_arinc717_aligned.py` 解单个参数
+  - 用命令行参数指定 "解码配置" 和 "原始数据文件"   
+* `decode8_arinc717_aligned.py` 解单个参数, 或所有参数
+  - 用命令行参数指定 "解码配置" 和 "原始数据文件"   
+  - 解所有参数, 写入自定格式的单文件   
 
 ### 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   
