@@ -74,8 +74,8 @@ def main():
         #---regular parameter, superframe parameter
         PrmConf=prm_to_dict(prm_conf)
         #----写CSV文件--------
-        if len(TOCSV)>4:
-            print('Write to CSV file:',TOCSV)
+        if len(TOCSV)>1:
+            print('Write to JSON file:',TOCSV)
             if TOCSV.endswith('.gz'):
                 fp=gzip.open(TOCSV,'wt',encoding='utf8')
             else:
@@ -271,7 +271,7 @@ def prm_to_dict(prm_conf):
                     subframeA=mapv2['subframe'].split(',')
                     if subframe_old != mapv2['subframe']:
                         #有逗号的情况下，不应该不同
-                        print("ERROR, 同组记录中,subframe不相同.",vv['name'],"参数的words配置会有错误")
+                        print("ERROR, 同组记录中,subframe不相同.",vv['name'],"参数的words配置会有错误",file=sys.stderr)
                 else:
                     subframeA=[mapv2['subframe'], ]
                 words_tmp.extend([
@@ -304,6 +304,12 @@ def prm_to_dict(prm_conf):
             for mapv2 in mapv:
                 #PrmConf["param"][vv['name']]["Options"][int(mapv2['val'])]=mapv2['text']
                 PrmConf["param"][vv['name']]["Options"].append([int(mapv2['val']), mapv2['text'] ])
+        #检查一下
+        if PrmConf["param"][vv['name']]['RecFormat'].find('BCD')>=0 and len(PrmConf["param"][vv['name']]['ConvConfig'])<1:
+            print(' =>ERROR, {}, BCD has no ConvConfig'.format(vv['name']),file=sys.stderr)
+        elif PrmConf["param"][vv['name']]['RecFormat'].find('DIS')>=0 and len(PrmConf["param"][vv['name']]['Options'])<1:
+            print(' =>ERROR, {}, DISCRETE has no Options'.format(vv['name']),file=sys.stderr)
+
         ii+=1
     #print(json.dumps(PrmConf, ensure_ascii=False, separators=(',',':')))
     #print(json.dumps(PrmConf, ensure_ascii=False, indent=3))
@@ -644,12 +650,14 @@ def usage():
     print(u' 读解码库，参数配置文件 xx.PRM ')
     print(sys.argv[0]+' [-h|--help]')
     print('   -h, --help        print usage.')
-    print('   -v, --ver=10XXX      dataver 中的参数配置表')
-    print('   --csv xxx.csv        save to "xxx.csv" file.')
-    print('   --csv xxx.csv.gz     save to "xxx.csv.gz" file.')
-    print('   -l,--paramlist       list all param name.')
-    print('   -p,--param alt_std   show "alt_std" param.')
-    print('   -j,--paramjson       dump all param config TO "json" format.')
+    print('   -v, --ver=10XXX     dataver 中的参数配置表')
+    print('   -l,--paramlist      list all param name.')
+    print('     --csv xxx.csv       with "-l",save to "xxx.csv" file.')
+    print('     --csv xxx.csv.gz    with "-l",save to "xxx.csv.gz" file.')
+    print('   -p,--param alt_std  show "alt_std" param.')
+    print('   -j,--paramjson      dump all param config TO "json" format.')
+    print('     -w out.json         with "-j",dump all param config write into "out.json" in "json" format.')
+    print('     -w out.json.gz      with "-j",dump all param config to out.json.gz')
     print(u'\n               author: osnosn@126.com')
     print()
     return
@@ -658,7 +666,7 @@ if __name__=='__main__':
         usage()
         exit()
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:],'hlv:p:f:dj',['help','ver=','csv=','paramlist','paramjson','param='])
+        opts, args = getopt.gnu_getopt(sys.argv[1:],'hlv:p:f:djw:',['help','ver=','csv=','paramlist','paramjson','param='])
     except getopt.GetoptError as e:
         print(e)
         usage()
@@ -669,6 +677,8 @@ if __name__=='__main__':
     PARAMLIST=False
     PARAMJSON=False
     PARAM=None
+    if len(args)>0:  #命令行剩余参数
+        FNAME=args[0]  #只取第一个
     for op,value in opts:
         if op in ('-h','--help'):
             usage()
@@ -677,7 +687,7 @@ if __name__=='__main__':
             FNAME=value
         elif op in('-d',):
             DUMPDATA=True
-        elif op in('--csv',):
+        elif op in('-w','--csv',):
             TOCSV=value
         elif op in('-l','--paramlist',):
             PARAMLIST=True
@@ -685,8 +695,6 @@ if __name__=='__main__':
             PARAMJSON=True
         elif op in('--param','-p',):
             PARAM=value
-    if len(args)>0:  #命令行剩余参数
-        FNAME=args[0]  #只取第一个
     if FNAME is None:
         usage()
         exit()
