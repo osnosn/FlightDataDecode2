@@ -277,7 +277,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
 
     let mut PRM_data: Vec<Vec<u8>> = vec![];
     let mut PRM_table: Vec<OneParamTable> = vec![];
-    let mut data_point: u64 = 0; //用于指向DATA的指针
+    let mut param_table_total_size: u32 = 0;
 
     let mut ii_prm = 0; //解码的参数计数
     for param in prm_conf.param.keys() {
@@ -394,7 +394,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
         }
 
         one_param_table.selfsize = one_param_table.length() as u16; //单个table自身的size
-        data_point += one_param_table.selfsize as u64; //用于指向DATA的指针,加上param_table的长度
+        param_table_total_size += one_param_table.selfsize as u32; //用于指向DATA的指针,加上param_table的长度
         one_param_table.data_size = buf2.len() as u32; //压缩数据的size
         PRM_data.push(buf2);
         PRM_table.push(one_param_table);
@@ -466,11 +466,11 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     wfile.write_all(&[0]).expect("写入失败"); //写入一个 0 作为字符串结束.
 
     //------ 写 Parameter_Table ----------
-    let param_table_total_size: u32 = data_point as u32; //目前data_point的值为, param_table_total_size,
+    param_table_total_size += 4; //加上total_size本身的4bytes后,为param_table_total_size,
     wfile
         .write_all(&param_table_total_size.to_le_bytes())
         .expect("写入失败");
-    data_point += 4 + header_size as u64;
+    let mut data_point: u64 = (header_size + param_table_total_size) as u64;
     //   --- 写,单个参数的table ---
     for ii in 0..PRM_table.len() {
         PRM_table[ii].data_point = data_point; //修改,指向DATA的指针

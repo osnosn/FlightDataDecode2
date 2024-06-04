@@ -10,7 +10,10 @@ rust-version = "1.71"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bzip2 = { version = "0.4.4", registry = "rsproxy" }
 lexopt = { version = "0.3.0", registry = "rsproxy" }
 memmap2 = { version = "0.9.4", registry = "rsproxy" }
 mlua = { version = "0.9.6", registry = "rsproxy", features= ["luajit52","vendored"] }
+serde = { version = "1.0.202", registry = "rsproxy", features = ["derive"] }
+serde_json = { version = "1.0.117", registry = "rsproxy" }
 #mlua = { version = "0.9.6", registry = "rsproxy", features= ["lua54","vendored"] }
