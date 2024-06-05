@@ -19,10 +19,11 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
     - 从`prm_conf320.json`文件中读取解码配置。   
       - 对于PRM配置,可以用`read_prm717.py`生成json配置文件。   
       - 对于VEC配置,可以用另一个项目中[FlightDataDecode](https://github.com/osnosn/FlightDataDecode)`/ARINC717/VEC717_to_json.py`生成json配置文件。   
-    - 解码参数后, 写入自定义格式文件.dat。可以用 `ALL_read_datafile.py` 来读取,导入pd.DataFrame中。   
+    - 解码参数后, 写入自定义格式文件.dat。可以用 `ALL_read_datafile.py` 来读取,导入pandas.DataFrame中。   
     - 解码程序没写完。处理了 BNR,ISO,BCD,DIS 格式的数据。其他类型还没有处理 (默认按BNR处理)。   
 * qar_decode_lua.  解码个别参数。   
   - `qar_decode6` 嵌入lua脚本测试   
+  - `qar_datafile2` 读取自定义格式文件,嵌入lua脚本测试   
 
 data/ 目录，有示例数据。  
 python3/ 目录，有几个 py3 程序。  
@@ -33,7 +34,7 @@ python3/ 目录，有几个 py3 程序。
   - `python3/read_prm717.py` 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
   - `python3/decode8_arinc717_aligned.py` 解所有参数, 用命令行参数指定 "解码配置" 和 "原始数据文件"   
   - `qar_decode8` 解所有参数, 用命令行参数指定 "解码配置" 和 "原始数据文件"   
-  - `ALL_read_datafile.py` 读取解码后的参数文件, 并导入pd.DataFrame中   
+  - `ALL_read_datafile.py` 读取解码后的自定义格式文件中的参数, 并导入pandas.DataFrame中   
 
 ### 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   

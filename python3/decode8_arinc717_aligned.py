@@ -5,6 +5,13 @@
 读取 wgl 中 raw.dat 。
 解码一个参数。
 仅支持 ARINC 573/717 Aligned 格式
+
+  我的测试 Intel CPU i9,x64,主频3.3GHz, BogoMIPS:6600。
+  原始文件 raw.dat 21MB。有参数 1080 个, 航段170分钟。
+      解所有参数，写入单文件,bzip2压缩, 1.4MB，耗时1m45s.
+  原始文件 raw.dat 15MB。有参数 2350 个, 航段121分钟。
+      解所有参数，写入单文件,bzip2压缩, 1.5MB，耗时0m57s.
+  rust版的decode8, 耗时6s到7s.
 """
 import json
 import struct

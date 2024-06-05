@@ -11,7 +11,7 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
   - 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
   - 此程序读取PRM文件，显示指定参数的配置内容。   
   - 读取PRM文件，导出json格式的自定义解码配置文件。(2024-05)   
-* `ALL_read_datafile.py` 用于读取, 存放于自定义格式文件中的,解码后的参数, 并导入pd.DataFrame中。(2024-05)   
+* `ALL_read_datafile.py` 用于读取, 存放于自定义格式文件中的,解码后的参数, 并导入pandas.DataFrame中。(2024-05)   
 * `dump_rawdat_aligned.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 aligned格式。   
 * `dump_rawdat_bitstream.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 bitstream格式。  
 * `decode5_arinc717_aligned.py` 解320.PRM, raw320.dat   

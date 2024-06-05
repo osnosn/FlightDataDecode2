@@ -16,7 +16,7 @@ use std::io::Write;
 //#[cfg(target_os = "linux")] //lua用到了
 use std::process;
 
-#[path = "../CmdLineArgs1.rs"]
+#[path = "../CmdLineArgs2.rs"]
 mod CmdLineArgs;
 
 #[derive(Serialize, Debug)]

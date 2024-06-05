@@ -11,6 +11,13 @@
 //! 增加BCD格式的处理。
 //!    author: osnosn@126.com   
 
+// 我的测试 Intel CPU i9,x64,主频3.3GHz, BogoMIPS:6600。
+// 原始文件 raw.dat 21MB。有参数 1080 个, 航段170分钟。
+//     解所有参数，写入单文件,bzip2压缩, 1.4MB，耗时0m6.2s.
+// 原始文件 raw.dat 15MB。有参数 2350 个, 航段121分钟。
+//     解所有参数，写入单文件,bzip2压缩, 1.5MB，耗时0m5.8s.
+// python3 版,用时 58s到1m50s.
+
 use memmap2::Mmap;
 use memmap2::MmapOptions;
 use serde::Serialize;
@@ -77,6 +84,15 @@ fn main() {
     }
 
     //参数配置,创建
+    if args.json.len() < 2 {
+        // "prm_conf320.json"
+        println!();
+        showHelp(args.bin_name);
+        eprintln!();
+        eprintln!("没有指定\"解码配置\"json文件, Missing \"-j prm_conf.json\".");
+        eprintln!("\r\n");
+        return ();
+    }
     let prm_conf = prm_conf::PrmConf::json(args.json.as_str());
 
     if args.paramlist {
@@ -88,8 +104,14 @@ fn main() {
     // 读取的文件名
     let filename_read;
     if args.rawfile.len() < 2 {
+        println!();
+        showHelp(args.bin_name);
+        eprintln!();
+        eprintln!("没有指定raw原始数据文件, Missing \"-r raw.dat\".");
+        eprintln!();
+        return ();
         //默认文件名
-        filename_read = "data/raw320.dat";
+        //filename_read = "data/raw320.dat";
     } else {
         filename_read = args.rawfile.as_str();
     }
@@ -98,9 +120,11 @@ fn main() {
         //解码所有参数名称
         allparam(filename_read, &prm_conf, &args);
     } else if args.param.len() < 2 {
+        println!();
+        showHelp(args.bin_name);
+        eprintln!();
         eprintln!("没有指定参数名称 -p , --param");
         eprintln!();
-        showHelp(args.bin_name);
         return ();
     } else {
         // 打开数据文件
@@ -136,44 +160,51 @@ fn main() {
 
         // 写入的文件名
         let filename_write = args.outfile.as_str();
-        // 创建一个文件，用于写入csv格式的数据
-        let mut wfile = File::create(filename_write)
-            .expect(format!("创建文件失败:\"{}\"", filename_write).as_str());
-        wfile
-            .write_all("time,value\r\n".as_bytes())
-            .expect("写入失败");
+        if filename_write.len() < 2 {
+            eprintln!();
+            eprintln!("需要写入的CSV文件名,未指定.");
+            eprintln!("Using \"-w out.csv\" 把解码后的数据写入out.csv文件.\r\n");
+            return ();
+        } else {
+            // 创建一个文件，用于写入csv格式的数据
+            let mut wfile = File::create(filename_write)
+                .expect(format!("创建文件失败:\"{}\"", filename_write).as_str());
+            wfile
+                .write_all("time,value\r\n".as_bytes())
+                .expect("写入失败");
 
-        match PrmValue.val {
-            // 以csv格式写入文件
-            PrmType::Float(val) => {
-                for vv in val {
-                    wfile
-                        .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
-                        .expect("写入失败");
+            match PrmValue.val {
+                // 以csv格式写入文件
+                PrmType::Float(val) => {
+                    for vv in val {
+                        wfile
+                            .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
+                            .expect("写入失败");
+                    }
+                }
+                PrmType::Int(val) => {
+                    for vv in val {
+                        wfile
+                            .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
+                            .expect("写入失败");
+                    }
+                }
+                PrmType::Str(val) => {
+                    for vv in val {
+                        wfile
+                            .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
+                            .expect("写入失败");
+                    }
                 }
             }
-            PrmType::Int(val) => {
-                for vv in val {
-                    wfile
-                        .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
-                        .expect("写入失败");
-                }
-            }
-            PrmType::Str(val) => {
-                for vv in val {
-                    wfile
-                        .write_all(format!("{:.5},{:?}\r\n", vv.t, vv.v).as_bytes())
-                        .expect("写入失败");
-                }
-            }
+
+            println!();
+            println!(" The length of data is {}.", buflen);
+            println!(
+                " Parameter \"{}\" write to CSV file: \"{}\".",
+                args.param, filename_write
+            );
         }
-
-        println!();
-        println!(" The length of data is {}.", buflen);
-        println!(
-            " Parameter \"{}\" write to CSV file: \"{}\".",
-            args.param, filename_write
-        );
         println!();
     }
     show_mem(&args);
@@ -264,9 +295,6 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     // 使用mmap映射
     let rawbuf = unsafe { MmapOptions::new().map(&rfile).expect("Mmap映射创建失败") };
     let rawbuflen = rawbuf.len();
-
-    // 写入的文件名
-    let filename_write = args.outfile.as_str();
 
     //每次都要取值的参数配置
     let prm_superFrameCnt_prm = prm_conf
@@ -403,6 +431,15 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
     }
     show_mem(&args);
     println!("解码完成，准备写入dat文件.");
+
+    // 写入的文件名
+    let filename_write = args.outfile.as_str();
+    if filename_write.len() < 2 {
+        eprintln!();
+        eprintln!("需要写入的dat文件名,未指定.");
+        eprintln!("Using \"-w out.dat\" 把解码后的数据写入out.dat文件.\r\n");
+        return ();
+    }
 
     // 创建一个文件，用于写入自定义格式的数据
     let mut wfile = File::create(filename_write)

@@ -94,12 +94,12 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         help,
         help2,
         mem,
-        json: json.unwrap_or("prm_conf320.json".to_string()), //缺省值为 "prm_conf320.json"
-        param: param.unwrap_or("".to_string()),               //缺省值为 ""
+        json: json.unwrap_or("".to_string()),   //缺省值为 ""
+        param: param.unwrap_or("".to_string()), //缺省值为 ""
         paramlist,
         allparam,
         rawfile: rawfile.unwrap_or("".to_string()), //缺省值为 ""
-        outfile: outfile.unwrap_or("data/output_data.csv".to_string()),
+        outfile: outfile.unwrap_or("".to_string()),
         custom_detail,
         cmd: cmd.unwrap_or("".to_string()), //缺省值为 ""
     })
