@@ -15,18 +15,21 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * qar_decode.  解码个别参数。   
   - `qar_decode5` 解1024.PRM   
   - `qar_decode7` 解320.PRM   
-  - `qar_decode8` 解320.PRM, 配置来自json文件。(2024-05)   
+  - `qar_decode8` 解320.PRM, **配置来自json文件。解码所有参数.**(2024-05)   
     - 从`prm_conf320.json`文件中读取解码配置。   
       - 对于PRM配置,可以用`read_prm717.py`生成json配置文件。   
       - 对于VEC配置,可以用另一个项目中[FlightDataDecode](https://github.com/osnosn/FlightDataDecode)`/ARINC717/VEC717_to_json.py`生成json配置文件。   
     - 解码参数后, 写入自定义格式文件.dat。可以用 `ALL_read_datafile.py` 来读取,导入pandas.DataFrame中。   
     - 解码程序没写完。处理了 BNR,ISO,BCD,DIS 格式的数据。其他类型还没有处理 (默认按BNR处理)。   
-* qar_decode_lua.  解码个别参数。   
-  - `qar_decode6` 嵌入lua脚本测试   
-  - `qar_datafile2` 读取自定义格式文件,嵌入lua脚本测试   
+* qar_decode_lua. 支持嵌入lua脚本.    
+  - `qar_decode6` 嵌入lua脚本测试, 解码个别参数.   
+  - `qar_datafile2` **读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.**   
+    - 执行lua脚本, 可 调取,修改,删除 参数的值.   
+    - lua中支持的内嵌函数, 请看`qar_datafile2 --luahelp`   
 
 data/ 目录，有示例数据。  
-python3/ 目录，有几个 py3 程序。  
+python3/ 目录，有几个 py3 程序。其中:   
+* `ALL_read_datafile.py` 用于**读取**, 存放于自定义格式文件中的,解码后的参数, **并导入pandas.DataFrame中**。(2024-05)   
 
 ### 更新  
 * **2024-05 最后更新**   

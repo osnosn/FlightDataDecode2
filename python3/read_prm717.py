@@ -259,7 +259,7 @@ def prm_to_dict(prm_conf):
         if 'min' in vv:
             PrmConf["param"][vv['name']]["range"].append( float(vv['min']) )
             PrmConf["param"][vv['name']]["range"].append( float(vv['max']) )
-        for mapv in vv['map'].values():  #循环每一行PA31
+        for mapv in vv['map'].values():  #循环每一行PA31和PA32
             subframeA=[]
             subframe_old=""
             words_tmp=[]
@@ -287,6 +287,12 @@ def prm_to_dict(prm_conf):
                 #print(subframe,words_tmp,vv['name'])
                 #words_tmp会被修改，append()默认是加入list的引用。所以要copy()
                 PrmConf["param"][vv['name']]["words"].append(words_tmp.copy())
+        #把words 按 target排个序
+        #解码时, 是左移,倒序取值,放入低位
+        #无论正序,倒序,都导致解码结果不正确,
+        #看来,target还是要单独处理
+        #words_sort(PrmConf["param"][vv['name']]["words"])
+
         #print('    编号 MinValue MaxValue EUConvType resI   resolutionA  resolutionB  resolutionC')
         #if len(vv['res'])>1:
         #    print(vv['name'],vv['res'])
@@ -304,7 +310,7 @@ def prm_to_dict(prm_conf):
             for mapv2 in mapv:
                 #PrmConf["param"][vv['name']]["Options"][int(mapv2['val'])]=mapv2['text']
                 PrmConf["param"][vv['name']]["Options"].append([int(mapv2['val']), mapv2['text'] ])
-        #检查一下
+        #检查一下,配置项是否完整
         if PrmConf["param"][vv['name']]['RecFormat'].find('BCD')>=0 and len(PrmConf["param"][vv['name']]['ConvConfig'])<1:
             print(' =>ERROR, {}, BCD has no ConvConfig'.format(vv['name']),file=sys.stderr)
         elif PrmConf["param"][vv['name']]['RecFormat'].find('DIS')>=0 and len(PrmConf["param"][vv['name']]['Options'])<1:
@@ -314,7 +320,24 @@ def prm_to_dict(prm_conf):
     #print(json.dumps(PrmConf, ensure_ascii=False, separators=(',',':')))
     #print(json.dumps(PrmConf, ensure_ascii=False, indent=3))
     return PrmConf
-
+def words_sort(words):
+    '''
+    -- 解码时, 是左移,倒序取值,放入低位
+    如果按target的正序排序, 解码结果不正确
+    如果按target的倒序排序, 解码结果也不正确
+    还是按本来的顺序, 解码结果似乎比较正确
+    '''
+    for jj in range(0,len(words)):
+        if len(words[jj])>5:
+            tmp=[]
+            for ii in range(0,len(words[jj]),5):
+                tmp.append([ii,words[jj][ii+4]])
+            tmp.sort(key=lambda x:x[1],reverse=False)
+            word_sorted=[]
+            for v2 in tmp:
+                word_sorted.extend([words[jj][v2[0]], words[jj][v2[0]+1], words[jj][v2[0]+2], words[jj][v2[0]+3], words[jj][v2[0]+4],])
+            words[jj]=word_sorted
+    pass
 def read_parameter_file(dataver):
     '''
     prm_conf={

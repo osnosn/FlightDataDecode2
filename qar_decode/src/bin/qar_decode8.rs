@@ -777,7 +777,8 @@ fn get_dword_raw(
 ) -> Option<i32> {
     let mut dword_raw: i32 = 0;
     let mut ttl_bit = 0; //总bit计数
-                         //为了倒序循环,计算最后一组配置的值
+
+    //为了倒序循环,计算最后一组配置的值
     let mut ii: usize = (prm_set.len() / 5 - 1) * 5; //整数 乘除.
     loop {
         //倒序循环

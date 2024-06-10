@@ -2,6 +2,7 @@ pub struct Args {
     pub bin_name: String, //当前程序名
     pub help: bool,
     pub help2: bool,
+    pub luahelp: bool,
     pub mem: bool,
     pub infile: String,
     pub outfile: String,
@@ -14,6 +15,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
 
     let mut help = false;
     let mut help2 = false;
+    let mut luahelp = false;
     let mut mem = false;
     let mut infile = None;
     let mut outfile = None;
@@ -48,6 +50,9 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
                 // --help
                 help2 = true;
             }
+            Long("luahelp") => {
+                luahelp = true;
+            }
             Long("mem") => {
                 // --mem
                 mem = true;
@@ -72,6 +77,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         bin_name, //当前程序名
         help,
         help2,
+        luahelp,
         mem,
         infile: infile.unwrap_or("".to_string()), //缺省值为 ""
         outfile: outfile.unwrap_or("".to_string()),
