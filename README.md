@@ -26,18 +26,29 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
   - `qar_datafile2` **读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.**   
     - 执行lua脚本, 可 调取,修改,删除 参数的值.   
     - lua中支持的内嵌函数, 请看`qar_datafile2 --luahelp`   
+      或者看`qar_datafile2`源码, 在`qar_decode_lua/src/bin/qar_datafile2.rs`   
 
 data/ 目录，有示例数据。  
 python3/ 目录，有几个 py3 程序。其中:   
 * `ALL_read_datafile.py` 用于**读取**, 存放于自定义格式文件中的,解码后的参数, **并导入pandas.DataFrame中**。(2024-05)   
 
 ### 更新  
-* **2024-05 最后更新**   
+* **2024-06 最后更新**   
   - rust 程序  
   - `python3/read_prm717.py` 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
   - `python3/decode8_arinc717_aligned.py` 解所有参数, 用命令行参数指定 "解码配置" 和 "原始数据文件"   
   - `qar_decode8` 解所有参数, 用命令行参数指定 "解码配置" 和 "原始数据文件"   
+  - `qar_datafile2` 读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.   
   - `ALL_read_datafile.py` 读取解码后的自定义格式文件中的参数, 并导入pandas.DataFrame中   
+
+### 把玩的方法   
+1. 用`read_prm717.py`把PRM配置,改写为json配置文件。   
+   或, 用`VEC717_to_json.py`把VEC配置, 改写为json配置文件。   
+2. 用`qar_decode8`解码所有参数, 写入文件.   
+3. 用`qar_datafile2` 读取文件,通过嵌入lua脚本的执行,修改文件.   
+   比如: 修改meta, 做飞行阶段的划分, 增加简单的计算参数, ...    
+3. 用`ALL_read_datafile.py`读取文件, 做复杂的分析处理.   
+
 
 ### 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   
