@@ -32,7 +32,7 @@ data/ 目录，有示例数据。
 python3/ 目录，有几个 py3 程序。其中:   
 * `ALL_read_datafile.py` 用于**读取**, 存放于自定义格式文件中的,解码后的参数, **并导入pandas.DataFrame中**。(2024-05)   
 
-### 更新  
+## 更新  
 * **2024-06 最后更新**   
   - rust 程序  
   - `python3/read_prm717.py` 注释中有 **PRM 配置文件 字段的含义** (大部分)。  
@@ -41,16 +41,33 @@ python3/ 目录，有几个 py3 程序。其中:
   - `qar_datafile2` 读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.   
   - `ALL_read_datafile.py` 读取解码后的自定义格式文件中的参数, 并导入pandas.DataFrame中   
 
-### 把玩的方法   
-1. 用`read_prm717.py`把PRM配置,改写为json配置文件。   
+## 数据处理的流程   
+本项目, 没打算做成一个产品, 只是一个指引。   
+当然, 本项目也是可以用的。大部分的参数,解码都是正确的。   
+希望, 让有兴趣的公司或个人, 有信心自己做解码。因为解码并不是那么的难。   
+
+### ARINC717   
+1. 获取未解码的原始数据。   
+2. 判断格式，Bitstream OR Aligned.    
+   用`dump_raw_bitstream`,`dump_raw_aligned`分别扫描原始数据。   
+   或`dump_rawdat_bitstream.py`,`dump_rawdat_aligned.py`功能一样。    
+   如果是bitstream则下一步，如果是aligned则跳过下一步。   
+3. 用程序(没写), 把bitstream格式转换为aligned格式, 并把数据帧对齐。   
+   如果发现有帧损坏, 则用空白数据补齐这个损坏的帧。如果有缺帧, 则补空白帧。   
+4. 用`read_prm717.py`把PRM配置,改写为json配置文件。   
    或, 用`VEC717_to_json.py`把VEC配置, 改写为json配置文件。   
-2. 用`qar_decode8`解码所有参数, 写入文件.   
-3. 用`qar_datafile2` 读取文件,通过嵌入lua脚本的执行,修改文件.   
-   比如: 修改meta, 做飞行阶段的划分, 增加简单的计算参数, ...    
-3. 用`ALL_read_datafile.py`读取文件, 做复杂的分析处理.   
+   为下一步做准备。   
+5. 用`qar_decode8`依据上一步的json配置, 解码所有参数, 写入全参文件.   
+   或用`decode8_arinc717_aligned.py`, 功能一样,也是解码所有参数, 写入全参文件.   
+6. 用`qar_datafile2` 读取全参文件,通过嵌入lua脚本的执行,修改全参文件.   
+   比如: 修改Meta信息; 做飞行阶段的划分; 增加简单的计算参数; 判断简单的超限,生成超限事件; ...    
+   以新增参数的方式, 加入到全参文件中。   
+   这一步, 还需要对部分跳变的,异常的参数值做修正处理。   
+7. 用`ALL_read_datafile.py`读取全参文件, 做复杂的分析处理.   
+   这一步, 用python3, 是因为这个语言比较有优势。   
 
 
-### 其他  
+## 其他  
 * 认为此项目对您有帮助，请点个星星，或留个言，或发封邮件给我，让我高兴一下.   
   If you think this project is helpful to you, click a Star, or leave a message, or send me an Email to make me happy.  
 
