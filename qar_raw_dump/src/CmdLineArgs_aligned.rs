@@ -59,7 +59,7 @@ pub fn parse_args() -> Result<Args, lexopt::Error> {
         bin_name, //当前程序名
         help,
         help2,
-        rawfile: rawfile.unwrap_or("data/raw.dat".to_string()), //缺省值为 "raw.dat"
+        rawfile: rawfile.unwrap_or("".to_string()), //缺省值为 ""
         rawlen,
         cmd: cmd.unwrap_or("".to_string()), //缺省值为 ""
     })

@@ -107,8 +107,8 @@ def main():
                     print('  采样类型:',vv['type1'])
                     print('  记录格式:',vv['RecFormat'])
                     print('  ConvConfig:',vv['ConvConfig'])
-                    print('  signed:',vv['sign'])
-                    print('  SignRecType:',vv['SignRecType'])
+                    print('  signed:',vv['SignRecType'])
+                    print('  DisplaySign:',vv['sign'])
                     print('  FlagType:',vv['FlagType'])
                     print('  计量单位:',vv['unit'])
                 else:
@@ -209,6 +209,7 @@ def prm_to_dict(prm_conf):
                 "SuperFrameCounter": {
                     #words: [ subframe,word,lsb,msb,targetBit]
                     "words": [[
+                        0, #superFrame
                         int(prm_conf['SUP'][3]) if prm_conf['SUP'][3]!='ALL' else 0,
                         int(prm_conf['SUP'][4]),
                         int(prm_conf['SUP'][5]),
@@ -216,8 +217,8 @@ def prm_to_dict(prm_conf):
                         0]],
                     #res: 无系数 
                     "res": [],
-                    "signed": False,      #true=1,有符号; false=0,无符号; 
-                    "signRecType": False, #true=01,有符号; false=00,无符号; 以这个为准.
+                    "signed": False, #true=01,有符号; false=00,无符号; 以这个为准.
+                    "DisplaySign": False,      #true=1,有符号; false=0,无符号; 
                     "superframe": 0,   #superframe:0 非超级帧参数
                     "RecFormat": "BNR",
                     "ConvConfig": [],
@@ -234,9 +235,9 @@ def prm_to_dict(prm_conf):
                     #res: 系数 A,B,C; 转换公式, A+B*X+C*X*X
                     #res: [MinValue, MaxValue, resolutionA, resolutionB, resolutionC]
                     "res": [],
-                    "signed": True if vv['sign']=='Y' else False,
-                    "signRecType": True if int(vv['SignRecType'])!=0 else False,
-                    "superframe": int(vv['superframe']) if 'superframe' in vv else 0,
+                    "signed": True if int(vv['SignRecType'])!=0 else False,
+                    "DisplaySign": True if vv['sign']=='Y' else False,
+                    "superframe": int(vv['superframe']) if 'superframe' in vv else 0,#不使用了,这个值移动到"words"中
                     "RecFormat": vv['RecFormat'],
                     #ConvConfig: 类型为BCD/ISO，每一位"数字/字符"占用的bit数
                     "ConvConfig": [],
@@ -275,15 +276,16 @@ def prm_to_dict(prm_conf):
                 else:
                     subframeA=[mapv2['subframe'], ]
                 words_tmp.extend([
-                    -1,  #subframe
+                    int(vv['superframe']) if 'superframe' in vv else 0,  #superframe;VEC的配置,这个值会有不同
+                    -1,  #subframe, 后面的subframeA循环,会重写这个值 
                     int(mapv2['word']),
                     int(mapv2['lsb']),
                     int(mapv2['msb']),
                     int(mapv2['target']) if mapv2['target']!='' else 0,
                     ])
             for subframe in subframeA:
-                for jj in range(0,len(words_tmp),5):
-                    words_tmp[jj]= int(subframe) if subframe !='ALL' else 0
+                for jj in range(0,len(words_tmp),6):
+                    words_tmp[jj+1]= int(subframe) if subframe !='ALL' else 0
                 #print(subframe,words_tmp,vv['name'])
                 #words_tmp会被修改，append()默认是加入list的引用。所以要copy()
                 PrmConf["param"][vv['name']]["words"].append(words_tmp.copy())
@@ -536,16 +538,17 @@ def split_line(line):
             'PA17':[0,5],
             #PA17, 参数名简称(如果PA11没显示完整)
             'PA21':[0,5,9,17,20,23,26,33],
-            #PA21, 记录次数/4sec, BCD取值方式/空白, 单个记录分几段保存, ?, ?, ?, ?
-            #PA21, Rate(sample/frame), ConvConfig/空白, 单个记录分几段, SignRecType, FlagType, ?, ?
-            # 单个记录分几段: 通常指一行PA31中有几个分段。
+            #PA21, 记录次数/4sec, BCD取值方式/空白, 单个记录分几段保存, ?, ?, ?, ? (最后两个?,是全0)
+            #PA21, Rate(sample/frame), ConvConfig/空白, 单个记录分几段, SignRecType, FlagType, 000000, 00
+            # BCD取值方式,应该可以支持7个段,目前只见过5段"34444"
+            # 单个记录分几段: 通常指一行PA31中有几个分段。(取值有1,2,3,4,5,6)
             # SignRecType=00,01,只有这两个值。可能表示原始值中的最高位是否为符号位。
             #FlagType:只有''(空),0,4,5四种值。
             # 最后两个值，都是0; 即:'000000 00'
             'PA22':[0,5,19,33,47],
             #PA22, EU LowerOperRange, EU UpperOperRange, ?, ?
             #PA22, 取值范围最小, 取值范围最大, ?, ?
-            # 最后两个值，都是1和0; 即:'1.000000e+00 0'; 怀疑是原始值的转换系数。
+            # 最后两个值，都是1和0; 即:'1.000000e+00 0'; 怀疑是原始值的转换系数A,B。(A*x+B)
             'PA31':[0,5,9, 16,21,26,29,32, 35,40,45,48,51, 54,59,64,67,70 ],
             #(会有多行) PA31, 序号SampleNum,ComponentsNum,  SubFrame,WordNum,LSB低位,MSB高位,TargetBit,  
             # 同一行的多个部分，解码时需要拼接。如果TargetBit=0,则按顺序首尾拼接. 如有三组A,B,C, 则A在高位,C在低位。
@@ -563,7 +566,9 @@ def split_line(line):
             # EUConvType=1,系数编号resI=1; 转换公式为 VAL=系数0 + 系数1 * X
             # EUConvType=1,系数编号resI=2; 转换公式为 VAL=系数0 + 系数1 * X + 系数2 * (X*X)
             'PA50':[0,5,18,31,44,57,59],
-            #PA50, 参数名简称/空白, 参数名全称/空白, 单位/空白, 输出的显示格式, ?, ?
+            #PA50, 参数名简称/空白, 参数名全称/空白, 单位/空白, 输出的显示格式, 0, ? 
+            # 最后的?,(取值有1,2)
+            # 倒数第二的0,(值只有0)
             'PA62':[0, 5,11, 24,30, 43,49, 62,68],
             #PA62, 数值,枚举值,  (两个一对，离散枚举值列表)
             'PA70':[0,5,8,16],

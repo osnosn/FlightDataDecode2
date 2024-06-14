@@ -4,11 +4,11 @@
    "param": {
       "SuperFrameCounter": {
          "words": [
-            [ 2, 225, 1, 4, 0 ]
+            [ 0, 2, 225, 1, 4, 0 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -17,11 +17,11 @@
       },
       "ALT_BARO_ADC1": {
          "words": [
-            [ 0, 716, 1, 12, 1, 0, 715, 8, 12, 0 ]
+            [ 0, 0, 716, 1, 12, 1, 0, 0, 715, 8, 12, 0 ]
          ],
          "res": [],
          "signed": true,
-         "signRecType": true,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -37,14 +37,14 @@
       },
       "CAS": {
          "words": [
-            [ 0, 74, 1, 12, 1 ],
-            [ 0, 586, 1, 12, 0 ]
+            [ 0, 0, 74, 1, 12, 1 ],
+            [ 0, 0, 586, 1, 12, 0 ]
          ],
          "res": [
             [ -4096, 4095, 0.0, 0.125, 0.0 ]
          ],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -60,11 +60,11 @@
       },
       "DAY": {
          "words": [
-            [ 1, 17, 1, 6, 0 ]
+            [ 0, 1, 17, 1, 6, 0 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BCD",
          "ConvConfig": [ 2, 4 ],
@@ -80,13 +80,13 @@
       },
       "GPS_GS_CA": {
          "words": [
-            [ 0, 747, 1, 12, 17 ]
+            [ 0, 0, 747, 1, 12, 17 ]
          ],
          "res": [
             [ -4096, 4096, 0.0, 0.25, 0.0 ]
          ],
-         "signed": true,
-         "signRecType": false,
+         "signed": false,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -102,14 +102,14 @@
       },
       "SAT": {
          "words": [
-            [ 1, 521, 3, 12, 16 ],
-            [ 3, 521, 3, 12, 16 ]
+            [ 0, 1, 521, 3, 12, 16 ],
+            [ 0, 3, 521, 3, 12, 16 ]
          ],
          "res": [
             [ -1024, 1024, 0.0, 0.25, 0.0 ]
          ],
          "signed": true,
-         "signRecType": true,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -125,13 +125,13 @@
       },
       "N1_1": {
          "words": [
-            [ 0, 369, 1, 12, 1 ]
+            [ 0, 0, 369, 1, 12, 1 ]
          ],
          "res": [
             [ -4096, 4095, 0.0, 0.03125, 0.0 ]
          ],
-         "signed": true,
-         "signRecType": false,
+         "signed": false,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -147,20 +147,20 @@
       },
       "PITCH": {
          "words": [
-            [ 0, 44, 3, 12, 1 ],
-            [ 0, 172, 3, 12, 1 ],
-            [ 0, 300, 3, 12, 1 ],
-            [ 0, 428, 3, 12, 1 ],
-            [ 0, 556, 3, 12, 0 ],
-            [ 0, 684, 3, 12, 0 ],
-            [ 0, 812, 3, 12, 0 ],
-            [ 0, 940, 3, 12, 0 ]
+            [ 0, 0, 44, 3, 12, 1 ],
+            [ 0, 0, 172, 3, 12, 1 ],
+            [ 0, 0, 300, 3, 12, 1 ],
+            [ 0, 0, 428, 3, 12, 1 ],
+            [ 0, 0, 556, 3, 12, 0 ],
+            [ 0, 0, 684, 3, 12, 0 ],
+            [ 0, 0, 812, 3, 12, 0 ],
+            [ 0, 0, 940, 3, 12, 0 ]
          ],
          "res": [
             [ -9999, 9999, 0.0, 0.1757813, 0.0 ]
          ],
          "signed": true,
-         "signRecType": true,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -176,11 +176,11 @@
       },
       "UTC_HOUR": {
          "words": [
-            [ 1, 19, 6, 12, 1 ]
+            [ 0, 1, 19, 6, 12, 1 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BCD",
          "ConvConfig": [ 3, 4 ],
@@ -196,11 +196,11 @@
       },
       "UTC_HOUR_SYS2": {
          "words": [
-            [ 4, 429, 6, 12, 0 ]
+            [ 0, 4, 429, 6, 12, 0 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BCD",
          "ConvConfig": [ 3, 4 ],
@@ -216,11 +216,11 @@
       },
       "UTC_MIN": {
          "words": [
-            [ 4, 225, 7, 12, 1 ]
+            [ 0, 4, 225, 7, 12, 1 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -236,11 +236,11 @@
       },
       "UTC_SEC": {
          "words": [
-            [ 4, 225, 1, 6, 1 ]
+            [ 0, 4, 225, 1, 6, 1 ]
          ],
          "res": [],
          "signed": false,
-         "signRecType": false,
+         "DisplaySign": false,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
@@ -256,20 +256,20 @@
       },
       "VRTG": {
          "words": [
-            [ 0, 9, 1, 12, 1 ],
-            [ 0, 41, 1, 12, 1 ],
-            [ 0, 73, 1, 12, 1 ],
-            [ 0, 105, 1, 12, 1 ],
-            [ 0, 137, 1, 12, 1 ],
-            [ 0, 169, 1, 12, 1 ],
-            [ 0, 201, 1, 12, 1 ],
-            [ 0, 233, 1, 12, 1 ]
+            [ 0, 0, 9, 1, 12, 1 ],
+            [ 0, 0, 41, 1, 12, 1 ],
+            [ 0, 0, 73, 1, 12, 1 ],
+            [ 0, 0, 105, 1, 12, 1 ],
+            [ 0, 0, 137, 1, 12, 1 ],
+            [ 0, 0, 169, 1, 12, 1 ],
+            [ 0, 0, 201, 1, 12, 1 ],
+            [ 0, 0, 233, 1, 12, 1 ]
          ],
          "res": [
             [ -4096, 4096, 0.0, 0.00390625, 0.0 ]
          ],
          "signed": true,
-         "signRecType": true,
+         "DisplaySign": true,
          "superframe": 0,
          "RecFormat": "BNR",
          "ConvConfig": [],
