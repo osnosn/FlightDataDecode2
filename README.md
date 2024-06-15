@@ -42,6 +42,7 @@ python3/ 目录，有几个 py3 程序。其中:
   - `qar_decode8` 解所有参数, 用命令行参数指定 "解码配置" 和 "原始数据文件".   
   - `qar_datafile2` 读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.   
   - `ALL_read_datafile.py` 读取解码后的自定义格式文件中的参数, 并导入pandas.DataFrame中   
+  - `bitstream2aligned.py`, 把bitstream格式转换为aligned格式, 并把数据帧对齐。(补帧未实现)   
 
 ## 数据处理的流程   
 本项目, 没打算做成一个产品, 只是一个指引。   
@@ -54,7 +55,7 @@ python3/ 目录，有几个 py3 程序。其中:
    用`dump_raw_bitstream`,`dump_raw_aligned`分别扫描原始数据。   
    或`dump_rawdat_bitstream.py`,`dump_rawdat_aligned.py`功能一样。    
    如果是bitstream则下一步，如果是aligned则跳过下一步。   
-3. 用程序(没写), 把bitstream格式转换为aligned格式, 并把数据帧对齐。   
+3. 用`bitstream2aligned.py`, 把bitstream格式转换为aligned格式, 并把数据帧对齐。(补帧未实现)   
    如果发现有帧损坏, 则用空白数据补齐这个损坏的帧。如果有缺帧, 则补空白帧。   
 4. 用`read_prm717.py`把PRM配置,改写为json配置文件。   
    或用`VEC717_to_json.py`(没写完)把VEC配置, 改写为json配置文件。   

@@ -14,6 +14,7 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * `ALL_read_datafile.py` 用于读取, 存放于自定义格式文件中的,解码后的参数, 并导入pandas.DataFrame中。(2024-05)   
 * `dump_rawdat_aligned.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 aligned格式。   
 * `dump_rawdat_bitstream.py` 用于扫描raw文件，通过 sync同步字出现的顺序和间隔，确定是否 bitstream格式。  
+* `bitstream2aligned.py`, 把bitstream格式转换为aligned格式, 并把数据帧对齐。(补帧未实现,2024-06)   
 * `decode5_arinc717_aligned.py` 解320.PRM, raw320.dat   
   - 用 `param_prm5.py` 解码配置320.PRM   
 * `decode6_arinc717_aligned.py` 解单个参数
