@@ -22,6 +22,7 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
     - 解码参数后, 写入自定义格式文件.dat。可以用 `ALL_read_datafile.py` 来读取,导入pandas.DataFrame中。   
     - 解码程序没写完。处理了 BNR,ISO,BCD,DIS 格式的数据。其他类型还没有处理 (默认按BNR处理)。   
     - 这个程序的解码逻辑,写的不好。应该要重写。(2024-06)   
+  - `qar_decode9` 按一个Frame为单位(包含4个subFrame),进行解码。在`qar_decode8`基础上重写。(2024-06)   
 * qar_decode_lua. 支持嵌入lua脚本.    
   - `qar_decode6` 嵌入lua脚本测试, 解码个别参数. (源码保留,不编译)   
   - `qar_datafile2` **读取自定义格式文件,通过嵌入lua脚本,修改自定义格式文件.**   

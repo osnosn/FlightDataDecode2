@@ -5,7 +5,7 @@
 #RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
 ## RUSTFLAGS='-C target-feature=+crt-static -C link-args=-no-pie' cargo build --release
 
-.PHONY: all debug release clean fmt lint ready
+.PHONY: all debug release clean fmt cp 7z one7z onezip
 
 help:
 	@echo ' 可用的命令:'
@@ -79,7 +79,7 @@ fmt:
 #----------------------------------------
 BINFILES := dump_raw_aligned dump_raw_bitstream dump_raw_bitstream2
 #BINFILES += qar_decode qar_decode2 qar_decode3 qar_decode4 qar_decode5 qar_decode6 
-BINFILES += qar_decode7 qar_decode8 qar_datafile2
+BINFILES += qar_decode7 qar_decode8 qar_decode9 qar_datafile2
 TARGETS1 := aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu x86_64-unknown-linux-musl
 TARGETS2 := i686-pc-windows-gnu x86_64-pc-windows-gnu
 

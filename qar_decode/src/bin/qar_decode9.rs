@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 //! 使用mmap把raw文件映射到内存，然后再解码参数。  
-//!   解码过程,按照subframe为单位循环获取参数的值.如果碰到参数内容来自不同subframe, 就无法处理了。
-//!   所以, 此解码程序需要重写!!
+//!   解码过程,按照Frame为单位循环获取参数的值.如果参数内容来自不同subframe,也能处理。
 //! 解码配置来自json文件。  
 //!     通过 read_prm717.py    把PRM配置转换为json格式。  
 //!     通过 VEC717_to_json.py 把VEC配置转换为json格式。  
@@ -616,7 +615,6 @@ fn get_param(
 
     //变量初始化
     let mut subframe_cnt: i32 = 0; //subframe计数，
-    let mut subframe_idx: usize = 1; //subframe索引, 1-4
     let mut supcount_idx: i32 = 0; //超级帧索引, 0-15
     let mut word_cnt: usize = 0; //word计数，16bit字计数, (这个计数没什么用)
     let mut byte_cnt: usize = 0; //byte计数，字节计数。根据单/双数,也能确定word拼接时的位置。
@@ -639,11 +637,10 @@ fn get_param(
     println!("--- begin: {prm_name} ---");
     let mut dword_err: u8 = 0x0; //用于记录get_dword_raw()的错误标记
     loop {
-        if find_sync(
+        if find_frame(
             &mut byte_cnt,
             &mut word_cnt,
             word_per_sec,
-            &mut subframe_idx,
             buflen,
             &buf,
             VERBOSE,
@@ -688,12 +685,12 @@ fn get_param(
             println!("-> wordCnt/(word/sec):{:?}---subframeCnt:{:?}", word_cnt/word_per_sec, subframe_cnt);
         }
         */
-        dword_err |= 0x80; //设置标记,代表获取SuperFrameCount
         if let Some(val) = get_dword_raw(
             prm_superFrameCnt_prm,
             &prm_superFrameCnt,
             byte_cnt,
-            subframe_idx,
+            word_per_sec,
+            0, //获取SuperFrameCount时设0
             &buf,
             &mut dword_err,
         ) {
@@ -702,100 +699,103 @@ fn get_param(
                 println!("  --->超级帧索引:{}", supcount_idx);
             }
         }
-        dword_err &= 0x7f; //清除SuperFrameCount标记
 
         //超级帧判断
         if prm_superframe <= 0 || (prm_superframe as i32) == (supcount_idx + 1) {
             let mut rate_cnt: f32 = 0.0; //同一个subframe中,参数值的计数
             let mut dword_raw: i32;
-            //按记录组循环. 单个记录组为一个完整的记录
-            'SFrame: for prm_set in &prm_words {
-                match get_dword_raw(
-                    prm_param,
-                    &prm_set,
-                    byte_cnt,
-                    subframe_idx,
-                    &buf,
-                    &mut dword_err,
-                ) {
-                    Some(val) => dword_raw = val,
-                    None => {
-                        //None 就是subframe不匹配，所以无需 rate_cnt += 1.0;
-                        continue 'SFrame;
+            //按4个subframe循环
+            for subframe_idx in 1..=4 {
+                //按记录组循环. 单个记录组为一个完整的记录
+                'SFrame: for prm_set in &prm_words {
+                    match get_dword_raw(
+                        prm_param,
+                        &prm_set,
+                        byte_cnt,
+                        word_per_sec,
+                        subframe_idx,
+                        &buf,
+                        &mut dword_err,
+                    ) {
+                        Some(val) => dword_raw = val,
+                        None => {
+                            //None 就是subframe不匹配，所以无需 rate_cnt += 1.0;
+                            continue 'SFrame;
+                        }
                     }
-                }
-                frame_time = (subframe_cnt as f32) + (rate_cnt / param_rate);
+                    frame_time = (subframe_cnt as f32) + (rate_cnt / param_rate);
 
-                // 处理BCD, 即,十进制数值
-                // 从get_dword_raw()中,移动到这里处理。
-                if "BCD" == prm_param.RecFormat {
-                    ValType = "float";
-                    let mut value_i32: i32 = 0;
-                    let mut ii = 0;
-                    //借用，倒序
-                    for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
-                        let bits_mask: i32 = (1 << bcd_bits) - 1;
-                        value_i32 += (bits_mask & dword_raw) * (10_i32.pow(ii));
-                        dword_raw >>= bcd_bits;
-                        ii += 1;
+                    // 处理BCD, 即,十进制数值
+                    // 从get_dword_raw()中,移动到这里处理。
+                    if "BCD" == prm_param.RecFormat {
+                        ValType = "float";
+                        let mut value_i32: i32 = 0;
+                        let mut ii = 0;
+                        //借用，倒序
+                        for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
+                            let bits_mask: i32 = (1 << bcd_bits) - 1;
+                            value_i32 += (bits_mask & dword_raw) * (10_i32.pow(ii));
+                            dword_raw >>= bcd_bits;
+                            ii += 1;
+                        }
+                        //BCD也有转换系数
+                        let value_f32: f32 = (value_i32 as f32) * res_B + res_A; //通过系数，转换为工程值
+                                                                                 //println!("=>BCD:{value_f32}");
+                        PrmDict_f32.push(PrmDict {
+                            t: frame_time,
+                            v: value_f32,
+                        });
+                    } else if prm_param.RecFormat.starts_with("ISO")
+                        || prm_param.RecFormat.starts_with("CHAR")
+                    {
+                        ValType = "str";
+                        let mut value_str = "".to_string();
+                        //借用，倒序
+                        for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
+                            let bits_mask: i32 = (1 << bcd_bits) - 1;
+                            //value_str.push(std::char::from_u32((bits_mask & dword_raw) as u32).unwrap());
+                            value_str.push(((bits_mask & dword_raw) as u8) as char);
+                            dword_raw >>= bcd_bits;
+                        }
+                        //println!("=>ISO:{value_str}");
+                        PrmDict_str.push(PrmDict {
+                            t: frame_time,
+                            v: value_str,
+                        });
+                    } else if "UTC" == prm_param.RecFormat {
+                        ValType = "str";
+                        let ss = (dword_raw & 0x3f) as u8;
+                        let mm = ((dword_raw >> 6) & 0x3f) as u8;
+                        let hh = ((dword_raw >> 12) & 0x3f) as u8;
+                        let value_str = format!("{hh:02}:{mm:02}:{ss:02}");
+                        PrmDict_str.push(PrmDict {
+                            t: frame_time,
+                            v: value_str,
+                        });
+                    } else {
+                        //处理BNR,DIS; PACKED_BITS,DISCRETE,
+                        ValType = "float";
+                        let value_f32: f32 = (dword_raw as f32) * res_B + res_A; //通过系数，转换为工程值
+                        if VERBOSE & 0x80 > 0 && word_cnt < 128000 {
+                            println!(
+                                "subframe:{}, time:{:.5}, val:{:?}",
+                                subframe_idx, frame_time, value_f32
+                            );
+                        }
+                        PrmDict_f32.push(PrmDict {
+                            t: frame_time,
+                            v: value_f32,
+                        });
                     }
-                    //BCD也有转换系数
-                    let value_f32: f32 = (value_i32 as f32) * res_B + res_A; //通过系数，转换为工程值
-                                                                             //println!("=>BCD:{value_f32}");
-                    PrmDict_f32.push(PrmDict {
-                        t: frame_time,
-                        v: value_f32,
-                    });
-                } else if prm_param.RecFormat.starts_with("ISO")
-                    || prm_param.RecFormat.starts_with("CHAR")
-                {
-                    ValType = "str";
-                    let mut value_str = "".to_string();
-                    //借用，倒序
-                    for bcd_bits in (&prm_param.ConvConfig).iter().rev() {
-                        let bits_mask: i32 = (1 << bcd_bits) - 1;
-                        //value_str.push(std::char::from_u32((bits_mask & dword_raw) as u32).unwrap());
-                        value_str.push(((bits_mask & dword_raw) as u8) as char);
-                        dword_raw >>= bcd_bits;
-                    }
-                    //println!("=>ISO:{value_str}");
-                    PrmDict_str.push(PrmDict {
-                        t: frame_time,
-                        v: value_str,
-                    });
-                } else if "UTC" == prm_param.RecFormat {
-                    ValType = "str";
-                    let ss = (dword_raw & 0x3f) as u8;
-                    let mm = ((dword_raw >> 6) & 0x3f) as u8;
-                    let hh = ((dword_raw >> 12) & 0x3f) as u8;
-                    let value_str = format!("{hh:02}:{mm:02}:{ss:02}");
-                    PrmDict_str.push(PrmDict {
-                        t: frame_time,
-                        v: value_str,
-                    });
-                } else {
-                    //处理BNR,DIS; PACKED_BITS,DISCRETE,
-                    ValType = "float";
-                    let value_f32: f32 = (dword_raw as f32) * res_B + res_A; //通过系数，转换为工程值
-                    if VERBOSE & 0x80 > 0 && word_cnt < 128000 {
-                        println!(
-                            "subframe:{}, time:{:.5}, val:{:?}",
-                            subframe_idx, frame_time, value_f32
-                        );
-                    }
-                    PrmDict_f32.push(PrmDict {
-                        t: frame_time,
-                        v: value_f32,
-                    });
-                }
 
-                //一个subframe只有一个记录，输出一次即可
-                rate_cnt += 1.0;
+                    //一个subframe只有一个记录，输出一次即可
+                    rate_cnt += 1.0;
+                }
             }
         }
-        byte_cnt += word_per_sec * 2;
-        word_cnt += word_per_sec - 1;
-        subframe_cnt += 1;
+        byte_cnt += word_per_sec * 2 * 4;
+        word_cnt += word_per_sec * 4 - 1;
+        subframe_cnt += 4;
     }
 }
 //获取参数，一组位置的原始值
@@ -806,6 +806,7 @@ fn get_dword_raw(
     prm_set: &Vec<usize>,
     //signed: bool,
     byte_cnt: usize,
+    word_per_sec: usize,
     subframe_idx: usize,
     buf: &Mmap,
     dword_err: &mut u8, //用于返回错误标记
@@ -818,14 +819,14 @@ fn get_dword_raw(
     loop {
         //倒序循环
         //配置中 是否 指定了 subframe
-        if prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
+        if subframe_idx != 0 && prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
             return None;
         }
         if prm_set[ii + 5] != 0 {
             //targetBit !=0 不知道如何拼接，暂时忽略这个配置。
             //    把错误标记返回，一个参数只给出提示信息一次。
             //println!("--> INFO.targetBit !=0, 取值结果可能不正确");
-            if *dword_err & 0x80 > 0 {
+            if subframe_idx == 0 {
                 //获取SuperFrameCounter时
                 *dword_err |= 0x2;
             } else {
@@ -837,10 +838,19 @@ fn get_dword_raw(
         ttl_bit += bits_cnt; //总bit位数
         let bits_mask: i32 = (1 << bits_cnt) - 1;
         dword_raw <<= bits_cnt;
-        dword_raw |= (((buf[byte_cnt + (prm_set[ii + 2] - 1) * 2 + 1] as i32) << 8
-            | buf[byte_cnt + (prm_set[ii + 2] - 1) * 2] as i32)
+
+        let byte_pos: usize;
+        if prm_set[ii + 1] > 0 {
+            //subframe
+            byte_pos =
+                byte_cnt + (prm_set[ii + 1] - 1) * word_per_sec * 2 + (prm_set[ii + 2] - 1) * 2;
+        } else {
+            byte_pos = byte_cnt + (subframe_idx - 1) * word_per_sec * 2 + (prm_set[ii + 2] - 1) * 2;
+        }
+        dword_raw |= (((buf[byte_pos + 1] as i32) << 8 | buf[byte_pos] as i32)
             >> (prm_set[ii + 3] - 1))
             & bits_mask;
+
         if ii > 0 {
             ii -= 6; //step
         } else {
@@ -861,13 +871,12 @@ fn get_dword_raw(
     //}
     return Some(dword_raw);
 }
-//寻找同步字
-//似乎只判断两个连续的同步字位置正确，就够了
-fn find_sync(
+//寻找同步字,只找sync1: 0x247
+//判断Frame长度完整,并判断后续三个同步字(0x5B8,A47,DB8)正确
+fn find_frame(
     byte_cnt: &mut usize,
     word_cnt: &mut usize,
     word_per_sec: usize,
-    subframe_idx: &mut usize,
     buflen: usize,
     buf1: &Mmap,
     VERBOSE: i16,
@@ -887,91 +896,107 @@ fn find_sync(
         if *byte_cnt > 0 && *byte_cnt & 0x1 == 0 {
             //是偶数
             *word_cnt += 1;
-            /*
-            if word_cnt > 21139454 {
-                println!("---文件已经扫描, 结束---");
-                return false;
-            }
-            */
         }
         //两个字节拼为一个word, littleEndin, 低位在前。
         let word16: u16 = ((buf[*byte_cnt + 1] as u16) << 8 | (buf[*byte_cnt] as u16)) & 0x0fff;
-        if word16 == 0x247 || word16 == 0x5B8 || word16 == 0xA47 || word16 == 0xDB8 {
-            match word16 {
-                0x247 => *subframe_idx = 1,
-                0x5B8 => *subframe_idx = 2,
-                0xA47 => *subframe_idx = 3,
-                0xDB8 => *subframe_idx = 4,
-                _ => (),
-            }
-            if *byte_cnt + word_per_sec * 2 >= buflen - 2 {
-                //下一个sync是文件末尾
+        if word16 == 0x247 {
+            if *byte_cnt + word_per_sec * 2 * 4 > buflen {
+                //下一个Frame超出文件末尾
                 if VERBOSE & 0x1 > 0 {
                     println!(
-                        "->找到last sync字. wordCnt:0x{:X}---word:0x{:X}",
+                        "->last Frame 不完整,放弃. last Frame len:0x{:X} bytes.",
+                        buflen - (*byte_cnt),
+                    );
+                }
+                return false; //Frame不完整,放弃
+            }
+            let diff_word_cnt = *word_cnt - pre_word_cnt; //word_cnt的差值
+
+            //加一个subframe长度
+            let mut byte_pos: usize = *byte_cnt + word_per_sec * 2;
+            // word_per_sec 之后，是同步字2,0x5B8
+            let word16_next: u16 =
+                ((buf[byte_pos + 1] as u16) << 8 | buf[byte_pos] as u16) & 0x0fff;
+            if word16_next != 0x5B8 {
+                if VERBOSE & 0x1 > 0 {
+                    println!(
+                        "--->INFO.sync2 错误.0x{:X} wordCnt:0x{:X}, byteCnt0x{:X} 但next不是sync字, len:0x{:X}",
+                        word16, *word_cnt, *byte_cnt, diff_word_cnt,
+                        );
+                }
+                *byte_cnt += 1;
+                continue;
+            }
+            //再加一个subframe长度
+            byte_pos += word_per_sec * 2;
+            // word_per_sec 之后，是同步字3,0xA47
+            let word16_next: u16 =
+                ((buf[byte_pos + 1] as u16) << 8 | buf[byte_pos] as u16) & 0x0fff;
+            if word16_next != 0xA47 {
+                if VERBOSE & 0x1 > 0 {
+                    println!(
+                        "--->INFO.sync3 错误.0x{:X} wordCnt:0x{:X}, byteCnt0x{:X} 但next不是sync字, len:0x{:X}",
+                        word16, *word_cnt, *byte_cnt, diff_word_cnt,
+                        );
+                }
+                *byte_cnt += 1;
+                continue;
+            }
+            //再加一个subframe长度
+            byte_pos += word_per_sec * 2;
+            // word_per_sec 之后，是同步字4,0xDB8
+            let word16_next: u16 =
+                ((buf[byte_pos + 1] as u16) << 8 | buf[byte_pos] as u16) & 0x0fff;
+            if word16_next != 0xDB8 {
+                if VERBOSE & 0x1 > 0 {
+                    println!(
+                        "--->INFO.sync4 错误.0x{:X} wordCnt:0x{:X}, byteCnt0x{:X} 但next不是sync字, len:0x{:X}",
+                        word16, *word_cnt, *byte_cnt, diff_word_cnt,
+                        );
+                }
+                *byte_cnt += 1;
+                continue;
+            }
+            /*
+            //再加一个subframe长度
+            byte_pos += word_per_sec * 2;
+            if byte_pos >= buflen {
+                //下一个Frame是文件末尾
+                if VERBOSE & 0x1 > 0 {
+                    println!(
+                        "->找到last Frame. wordCnt:0x{:X}---word:0x{:X}",
                         *word_cnt, word16
                     );
                 }
                 return true;
             }
-            // word_per_sec 之后，也是同步字
-            let word16_next: u16 = ((buf[*byte_cnt + word_per_sec * 2 + 1] as u16) << 8
-                | buf[*byte_cnt + word_per_sec * 2] as u16)
-                & 0x0fff;
-            let diff_word_cnt = *word_cnt - pre_word_cnt; //word_cnt的差值
-            if word16_next == 0x247
-                || word16_next == 0x5B8
-                || word16_next == 0xA47
-                || word16_next == 0xDB8
-            {
-                if diff_word_cnt > 0 {
-                    if VERBOSE & 0x1 > 0 {
-                        if pre_word_cnt == 0 && *byte_cnt > 1 {
-                            println!(
-                                "--->!!!Warning!!! First SYNC 0x{:X} at 0x{:X}b 0x{:X}w, not beginning of DATA.",
-                                word16, *byte_cnt, *word_cnt,
-                            );
-                            println!(
-                                "--->Next SYNC 0x{:X} at 0x{:X}b,",
-                                word16_next,
-                                *byte_cnt + word_per_sec * 2,
-                            );
-                        }
-                    }
-                    if VERBOSE & 0x20 > 0 {
+            */
+
+            if diff_word_cnt > 0 {
+                if VERBOSE & 0x1 > 0 {
+                    if pre_word_cnt == 0 && *byte_cnt > 1 {
                         println!(
-                            "--->INFO.找到sync字.0x{:X} wordCnt:0x{:X}, len:0x{:X}",
-                            word16, *word_cnt, diff_word_cnt
-                        );
-                    }
-                    if *byte_cnt & 0x1 != 0 {
-                        println!("--->INFO.word 错位一个 byte.",);
-                    }
-                } else {
-                    if VERBOSE & 0x80 > 0 && *word_cnt < 128000 {
-                        //超过这个值，就不再打印
-                        println!("--->找到sync字.0x{:X} wordCnt:0x{:X}", word16, *word_cnt);
+                            "--->!!!Warning!!! First SYNC 0x{:X} at 0x{:X}b 0x{:X}w, not beginning of DATA.",
+                            word16, *byte_cnt, *word_cnt,
+                            );
                     }
                 }
-                if (*subframe_idx == 1 && word16_next != 0x5B8)
-                    || (*subframe_idx == 2 && word16_next != 0xA47)
-                    || (*subframe_idx == 3 && word16_next != 0xDB8)
-                    || (*subframe_idx == 4 && word16_next != 0x247)
-                {
-                    if VERBOSE & 0x1 > 0 {
-                        println!(
-                            "--->INFO.当前sync字.0x{:0X} wordCnt:0x{:X},NEXT.0x{:X},sync错误",
-                            word16, *word_cnt, word16_next
-                        );
-                    }
+                if VERBOSE & 0x20 > 0 {
+                    println!(
+                        "--->INFO.找到sync字.0x{:X} wordCnt:0x{:X}, len:0x{:X}",
+                        word16, *word_cnt, diff_word_cnt
+                    );
                 }
-                return true;
-            } else if VERBOSE & 0x1 > 0 {
-                println!(
-                    "--->INFO.找到sync字.0x{:X} wordCnt:0x{:X}, byteCnt0x{:X} 但next不是sync字, len:0x{:X}",
-                    word16, *word_cnt, *byte_cnt, diff_word_cnt,
-                );
+                if *byte_cnt & 0x1 != 0 {
+                    println!("--->INFO.word 错位一个 byte.",);
+                }
+            } else {
+                if VERBOSE & 0x80 > 0 && *word_cnt < 128000 {
+                    //超过这个值，就不再打印
+                    println!("--->找到sync1字.0x{:X} wordCnt:0x{:X}", word16, *word_cnt);
+                }
             }
+            return true;
         }
         *byte_cnt += 1;
     }
@@ -994,7 +1019,9 @@ fn showHelp(bin_name: String) {
     println!("      --mem        打印内存占用情况");
     println!(" 说明: ");
     println!("   使用mmap把raw文件映射到内存，然后再解码参数。");
-    println!("     解码过程,按照subframe为单位循环获取参数的值.如果碰到参数内容来自不同subframe, 就无法处理了。");
+    println!(
+        "     解码过程,按照Frame为单位循环获取参数的值.如果参数内容来自不同subframe,也能处理。"
+    );
     println!("   解码配置来自json文件。");
     println!("       通过 read_prm717.py    把PRM配置转换为json格式。");
     println!("       通过 VEC717_to_json.py 把VEC配置转换为json格式。");
