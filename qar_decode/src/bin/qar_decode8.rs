@@ -247,7 +247,7 @@ pub struct OneParamTable {
     data_size: u32,
     val_size: u16,
     rate: i16,
-    start_frameid: u32,
+    start_frameid: f32,
     name: String,
     compress: String,
     data_type: String,
@@ -332,7 +332,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
             data_size: 0,
             val_size: 4,
             rate: 4,
-            start_frameid: 1,
+            start_frameid: 1.0,
             name: param.clone(),
             compress: "bzip2".to_string(),
             data_type: "float".to_string(),
@@ -350,6 +350,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "float".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 //let mut pFloat: Vec<f32> = vec![];
                 for vv in val {
@@ -371,6 +372,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "int".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 for vv in val {
                     buf.write_all(&vv.v.to_le_bytes()).unwrap(); //仅返回 Ok(()),不会出错
@@ -381,6 +383,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "str".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 let mut data_arr: Vec<(f32, String)> = vec![];
                 for vv in val {
@@ -588,14 +591,18 @@ fn get_param(
     // 这个值，算的很粗糙，可能会不正确 !!!!!
     let param_rate: f32;
     if prm_words[0][1] == 0 {
+        //subframe[0]==0
         if prm_words[0][0] == 0 {
-            param_rate = prm_words.len() as f32;
+            //superF[0]==0
+            param_rate = prm_words.len() as f32; //一个subframe中记录的个数
         } else {
             //如果superframe不为0
             param_rate = (prm_words.len() as f32) / (prm_conf.SuperFramePerCycle as f32);
         }
     } else {
+        //subframe[0] >0
         if prm_words[0][0] == 0 {
+            //superF[0]==0
             //找出相同subframe有几个
             let subframe = prm_words[0][1];
             let mut num = 0;
@@ -604,7 +611,7 @@ fn get_param(
                     num += 1;
                 }
             }
-            param_rate = num as f32;
+            param_rate = num as f32; //一个subframe中记录的个数
         } else {
             //如果superframe不为0
             param_rate = 1.0 / (prm_conf.SuperFramePerCycle as f32);
@@ -789,7 +796,8 @@ fn get_param(
                     });
                 }
 
-                //一个subframe只有一个记录，输出一次即可
+                //一个subframe, 仅一个记录组.就是一秒一记录
+                //一个subframe, 有多个记录组.就是一秒多记录
                 rate_cnt += 1.0;
             }
         }
@@ -818,6 +826,7 @@ fn get_dword_raw(
     loop {
         //倒序循环
         //配置中 是否 指定了 subframe
+        //prm_set[ii + 1] 取值为 0,1,2,3,4;
         if prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
             return None;
         }
@@ -841,6 +850,7 @@ fn get_dword_raw(
             | buf[byte_cnt + (prm_set[ii + 2] - 1) * 2] as i32)
             >> (prm_set[ii + 3] - 1))
             & bits_mask;
+
         if ii > 0 {
             ii -= 6; //step
         } else {

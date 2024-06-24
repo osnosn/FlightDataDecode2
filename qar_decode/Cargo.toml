@@ -1,6 +1,6 @@
 [package]
 name = "qar_decode"
-version = "0.2.5"
+version = "0.2.6"
 edition = "2021"
 authors = ["osnosn <osnosn@126.com>"]
 description = "Use PRM decode Aligned raw.dat"

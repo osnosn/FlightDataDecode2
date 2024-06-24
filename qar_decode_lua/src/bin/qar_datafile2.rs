@@ -139,7 +139,7 @@ impl LuaUserData for Qar {
                             } else {
                                 rate *= -1.0;
                             }
-                            let mut frame = this.PrmTable[vv].start_frameid as f32;
+                            let mut frame = this.PrmTable[vv].start_frameid;
                             let mut ii = 0;
                             while ii < buf.len() {
                                 u32_bytes.copy_from_slice(&buf[ii..ii + 4]);
@@ -168,7 +168,7 @@ impl LuaUserData for Qar {
                             } else {
                                 rate *= -1.0;
                             }
-                            let mut frame = this.PrmTable[vv].start_frameid as f32;
+                            let mut frame = this.PrmTable[vv].start_frameid;
                             let mut ii = 0;
                             while ii < buf.len() {
                                 u32_bytes.copy_from_slice(&buf[ii..ii + 4]);
@@ -265,7 +265,7 @@ impl LuaUserData for Qar {
                             data_size: 0u32,
                             val_size: 0u16,
                             rate: 0i16,
-                            start_frameid: 0u32,
+                            start_frameid: 0.0_f32,
                             name: pm_name,
                             compress: "none".to_string(),
                             data_type: "str".to_string(),
@@ -350,7 +350,7 @@ impl LuaUserData for Qar {
                     } else {
                         this.PrmTable[idx].rate = (frame_rate * -1.0) as i16;
                     }
-                    this.PrmTable[idx].start_frameid = frame1 as u32;
+                    this.PrmTable[idx].start_frameid = frame1;
                     //填入值的类型,长度
                     this.PrmTable[idx].val_size = 4;
                     if datatype == 'I' {
@@ -648,7 +648,7 @@ pub struct OneParamTable {
     data_size: u32,
     val_size: u16,
     rate: i16,
-    start_frameid: u32,
+    start_frameid: f32,
     name: String,
     compress: String,
     data_type: String,
@@ -697,7 +697,7 @@ impl OneParamTable {
         reader.read_exact(&mut u16_bytes)?;
         let rate = i16::from_le_bytes(u16_bytes);
         reader.read_exact(&mut u32_bytes)?;
-        let start_frameid = u32::from_le_bytes(u32_bytes);
+        let start_frameid = f32::from_le_bytes(u32_bytes);
         let str_len = (selfsize - (2 + 8 + 4 + 2 + 2 + 4)) as usize;
         let mut str_bytes = vec![0; str_len];
         reader.read_exact(&mut str_bytes)?;

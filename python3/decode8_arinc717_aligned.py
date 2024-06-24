@@ -326,7 +326,8 @@ class ARINC717():
 
             one_param_table.extend(struct.pack('<h',value_size))     #value size
             one_param_table.extend(struct.pack('<h',int(data_rate))) #rate
-            one_param_table.extend(b"\0\0\0\0")           #start FrameID
+            # start_frameID一定是个整数, 0.0, 1.0
+            one_param_table.extend(struct.pack('<f',pm_list[0]['t'])) #start FrameID, float.4byte,f32
             one_param_table.extend(bytes(vv,'utf8')+b'\0')  #参数名称
             one_param_table.extend(compress_type)           #压缩算法
             one_param_table.extend(data_type)          #数据类型
@@ -334,7 +335,7 @@ class ARINC717():
             #填入 Parameter01 size
             one_param_table[0:2]=struct.pack('<H',len(one_param_table)) #short,2byte,Little-Endion
             #填入Parameter01_DATA size
-            one_param_table[10:14]=struct.pack('<L',data_len) #long,4byte,Little-Endion
+            one_param_table[10:14]=struct.pack('<L',data_len) #long,4byte,u32,Little-Endion
 
             #加入Parameter_Table
             parameter_table.extend(one_param_table)
@@ -368,31 +369,38 @@ class ARINC717():
             if len(pm_list)>0:
                 print([vv['v'] for vv in pm_list[0:10] ])
         else:
-            if isinstance(pm_list[0]['v'], int) :
-                #pm_data=[struct.pack('<fl',vv['t'],vv['v']) for vv in pm_list]
-                pm_data=[struct.pack('<l',vv['v']) for vv in pm_list]
-                tmp_str=b"".join(pm_data)
-                data_type=b'int\0'
-                value_size=4
-            elif isinstance(pm_list[0]['v'], float) :
-                #pm_data=[struct.pack('<ff',vv['t'],vv['v']) for vv in pm_list]
-                pm_data=[struct.pack('<f',vv['v']) for vv in pm_list]
-                tmp_str=b"".join(pm_data)
-                data_type=b'float\0'
-                value_size=4
-            else:
-                ### 获取解码参数的 json 数据
-                df_pm=pd.DataFrame(pm_list)
-                #tmp_str=df_pm.to_csv(None,sep='\t',index=False)
-                #tmp_str=df_pm.to_json(None,orient='split',index=False)
-                #tmp_str=df_pm.to_json(None,orient='records')
-                #tmp_str=df_pm.to_json(None,orient='index')
-                tmp_str=df_pm.to_json(None,orient='values')
-                #tmp_str=df_pm.to_json(None,orient='table',index=False)
-    
-                tmp_str=bytes(tmp_str,'utf8')
+            if len(pm_list)<1:
+                #参数没有值
+                print('=>ERROR,',pm_name,pm_list,'此参数无值,可能是配置文件不匹配.')
+                tmp_str=b'"none"'
                 data_type=b'json\0'
                 value_size=0
+            else:
+                if isinstance(pm_list[0]['v'], int) :
+                    #pm_data=[struct.pack('<fl',vv['t'],vv['v']) for vv in pm_list]
+                    pm_data=[struct.pack('<l',vv['v']) for vv in pm_list]
+                    tmp_str=b"".join(pm_data)
+                    data_type=b'int\0'
+                    value_size=4
+                elif isinstance(pm_list[0]['v'], float) :
+                    #pm_data=[struct.pack('<ff',vv['t'],vv['v']) for vv in pm_list]
+                    pm_data=[struct.pack('<f',vv['v']) for vv in pm_list]
+                    tmp_str=b"".join(pm_data)
+                    data_type=b'float\0'
+                    value_size=4
+                else:
+                    ### 获取解码参数的 json 数据
+                    df_pm=pd.DataFrame(pm_list)
+                    #tmp_str=df_pm.to_csv(None,sep='\t',index=False)
+                    #tmp_str=df_pm.to_json(None,orient='split',index=False)
+                    #tmp_str=df_pm.to_json(None,orient='records')
+                    #tmp_str=df_pm.to_json(None,orient='index')
+                    tmp_str=df_pm.to_json(None,orient='values')
+                    #tmp_str=df_pm.to_json(None,orient='table',index=False)
+
+                    tmp_str=bytes(tmp_str,'utf8')
+                    data_type=b'json\0'
+                    value_size=0
     
             ### 解码数据的压缩
             ### lzma占用内存大,bzip2占用内存小,两者压缩率在此场景下差不多

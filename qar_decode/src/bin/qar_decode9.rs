@@ -246,7 +246,7 @@ pub struct OneParamTable {
     data_size: u32,
     val_size: u16,
     rate: i16,
-    start_frameid: u32,
+    start_frameid: f32,
     name: String,
     compress: String,
     data_type: String,
@@ -331,7 +331,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
             data_size: 0,
             val_size: 4,
             rate: 4,
-            start_frameid: 1,
+            start_frameid: 1.0,
             name: param.clone(),
             compress: "bzip2".to_string(),
             data_type: "float".to_string(),
@@ -349,6 +349,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "float".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 //let mut pFloat: Vec<f32> = vec![];
                 for vv in val {
@@ -370,6 +371,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "int".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 for vv in val {
                     buf.write_all(&vv.v.to_le_bytes()).unwrap(); //仅返回 Ok(()),不会出错
@@ -380,6 +382,7 @@ fn allparam(filename_read: &str, prm_conf: &prm_conf::PrmConf, args: &CmdLineArg
                 one_param_table.data_type = "str".to_string();
                 if val.len() > 2 {
                     param_rate = val[1].t - val[0].t;
+                    one_param_table.start_frameid = val[0].t; //一定是个整数, 0.0, 1.0
                 }
                 let mut data_arr: Vec<(f32, String)> = vec![];
                 for vv in val {
@@ -567,16 +570,16 @@ fn get_param(
     let res_B: f32; //系数B
     let _res_C: f32; //系数C
 
-    //let signed; //是否带符号位 false=N, true=Y,
-
     let prm_param = prm_conf
         .param
         .get(prm_name.as_str())
         .expect(format!("参数没找到:\"{}\"", prm_name).as_str());
     prm_words = prm_param.words.clone();
     //prm_superframe = prm_param.superframe;
+
+    //取words中,第一组第一个值的superframe
     prm_superframe = prm_words[0][0];
-    //signed = prm_param.signed;
+
     if prm_param.res.len() > 0 {
         [_res_rangeMin, _res_rangeMax, res_A, res_B, _res_C] = prm_param.res[0];
     } else {
@@ -587,14 +590,18 @@ fn get_param(
     // 这个值，算的很粗糙，可能会不正确 !!!!!
     let param_rate: f32;
     if prm_words[0][1] == 0 {
+        //subframe[0]==0
         if prm_words[0][0] == 0 {
-            param_rate = prm_words.len() as f32;
+            //superF[0]==0
+            param_rate = prm_words.len() as f32; //一个subframe中记录的个数
         } else {
             //如果superframe不为0
             param_rate = (prm_words.len() as f32) / (prm_conf.SuperFramePerCycle as f32);
         }
     } else {
+        //subframe[0] >0
         if prm_words[0][0] == 0 {
+            //superF[0]==0
             //找出相同subframe有几个
             let subframe = prm_words[0][1];
             let mut num = 0;
@@ -603,7 +610,7 @@ fn get_param(
                     num += 1;
                 }
             }
-            param_rate = num as f32;
+            param_rate = num as f32; //一个subframe中记录的个数
         } else {
             //如果superframe不为0
             param_rate = 1.0 / (prm_conf.SuperFramePerCycle as f32);
@@ -690,7 +697,7 @@ fn get_param(
             &prm_superFrameCnt,
             byte_cnt,
             word_per_sec,
-            0, //获取SuperFrameCount时设0
+            0, //subframe_idx,获取SuperFrameCount时设0
             &buf,
             &mut dword_err,
         ) {
@@ -702,10 +709,10 @@ fn get_param(
 
         //超级帧判断
         if prm_superframe <= 0 || (prm_superframe as i32) == (supcount_idx + 1) {
-            let mut rate_cnt: f32 = 0.0; //同一个subframe中,参数值的计数
-            let mut dword_raw: i32;
             //按4个subframe循环
             for subframe_idx in 1..=4 {
+                let mut rate_cnt: f32 = 0.0; //同一个subframe中,参数值的计数
+                let mut dword_raw: i32;
                 //按记录组循环. 单个记录组为一个完整的记录
                 'SFrame: for prm_set in &prm_words {
                     match get_dword_raw(
@@ -723,7 +730,8 @@ fn get_param(
                             continue 'SFrame;
                         }
                     }
-                    frame_time = (subframe_cnt as f32) + (rate_cnt / param_rate);
+                    frame_time =
+                        (subframe_cnt + (subframe_idx - 1) as i32) as f32 + (rate_cnt / param_rate);
 
                     // 处理BCD, 即,十进制数值
                     // 从get_dword_raw()中,移动到这里处理。
@@ -788,7 +796,8 @@ fn get_param(
                         });
                     }
 
-                    //一个subframe只有一个记录，输出一次即可
+                    //一个subframe, 仅一个记录组.就是一秒一记录
+                    //一个subframe, 有多个记录组.就是一秒多记录
                     rate_cnt += 1.0;
                 }
             }
@@ -800,11 +809,9 @@ fn get_param(
 }
 //获取参数，一组位置的原始值
 // --增加 param_prm 参数，可以获取RecFormat,ConvConfig， 为了处理BCD格式.
-// --增加 param_prm 参数后，signed从参数中去除，因为signed可以通过param_prm获取.
 fn get_dword_raw(
     param_prm: &prm_conf::Param,
     prm_set: &Vec<usize>,
-    //signed: bool,
     byte_cnt: usize,
     word_per_sec: usize,
     subframe_idx: usize,
@@ -814,12 +821,17 @@ fn get_dword_raw(
     let mut dword_raw: i32 = 0;
     let mut ttl_bit = 0; //总bit计数
 
+    //保存第一个值的superframe
+    //vec的超级帧参数，同组的值,分别取自不同的superframe位置,不同的subframe位置,TODO,
+    let _superframe_idx = prm_set[0];
     //为了倒序循环,计算最后一组配置的值
     let mut ii: usize = (prm_set.len() / 6 - 1) * 6; //整数 乘除.
     loop {
         //倒序循环
         //配置中 是否 指定了 subframe
-        if subframe_idx != 0 && prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
+        //subframe_idx, prm_set[ii + 1] 取值为 0,1,2,3,4;
+        if subframe_idx > 0 && prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
+            //普通参数,同组的subframe应该相同。 但超级帧参数,就会不同，TODO
             return None;
         }
         if prm_set[ii + 5] != 0 {
@@ -845,6 +857,9 @@ fn get_dword_raw(
             byte_pos =
                 byte_cnt + (prm_set[ii + 1] - 1) * word_per_sec * 2 + (prm_set[ii + 2] - 1) * 2;
         } else {
+            //subframe_idx==0,即:获取SuperFrameCounter时的subframe不会为0
+            //反之,参数的subframe==0时，subframe_idx不会为0
+            //即, 参数的subframe 与 subframe_idx 不会同时为0
             byte_pos = byte_cnt + (subframe_idx - 1) * word_per_sec * 2 + (prm_set[ii + 2] - 1) * 2;
         }
         dword_raw |= (((buf[byte_pos + 1] as i32) << 8 | buf[byte_pos] as i32)
@@ -957,20 +972,6 @@ fn find_frame(
                 *byte_cnt += 1;
                 continue;
             }
-            /*
-            //再加一个subframe长度
-            byte_pos += word_per_sec * 2;
-            if byte_pos >= buflen {
-                //下一个Frame是文件末尾
-                if VERBOSE & 0x1 > 0 {
-                    println!(
-                        "->找到last Frame. wordCnt:0x{:X}---word:0x{:X}",
-                        *word_cnt, word16
-                    );
-                }
-                return true;
-            }
-            */
 
             if diff_word_cnt > 0 {
                 if VERBOSE & 0x1 > 0 {
@@ -996,6 +997,22 @@ fn find_frame(
                     println!("--->找到sync1字.0x{:X} wordCnt:0x{:X}", word16, *word_cnt);
                 }
             }
+
+            /*
+            //再加一个subframe长度
+            byte_pos += word_per_sec * 2;
+            if byte_pos >= buflen {
+                //下一个Frame是文件末尾
+                if VERBOSE & 0x1 > 0 {
+                    println!(
+                        "->找到last Frame. wordCnt:0x{:X}---word:0x{:X}",
+                        *word_cnt, word16
+                    );
+                }
+                //return true;
+            }
+            */
+
             return true;
         }
         *byte_cnt += 1;
