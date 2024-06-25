@@ -638,10 +638,32 @@ fn get_param(
     let mut info_json: serde_json::Value =
         serde_json::from_str("{}").expect("serde_json::from_str失败");
     info_json["RecFormat"] = serde_json::Value::String(prm_param.RecFormat.clone());
-    if prm_param.RecFormat == "DIS" {
+    if prm_param.signed {
+        //info_json["Signed"] = serde_json::to_value(1).unwrap();
+        info_json["Signed"] = serde_json::json!(1);
+    }
+    if prm_param.rate != 0 {
+        info_json["Rate"] = serde_json::json!(prm_param.rate);
+    }
+    if prm_param.Unit.len() > 0 {
+        info_json["Unit"] = serde_json::Value::String(prm_param.Unit.clone());
+    }
+    if prm_param.res.len() > 0 {
+        info_json["Res"] = serde_json::to_value(prm_param.res.clone()).expect("serde_json,Res失败");
+        //info_json["Res"] = serde_json::json!(prm_param.res.clone());
+    }
+    if prm_param.ConvConfig.len() > 0 {
+        info_json["Conv"] =
+            serde_json::to_value(prm_param.ConvConfig.clone()).expect("serde_json,Conv失败");
+    }
+    if prm_param.RecFormat.starts_with("DIS") || prm_param.Options.len() > 0 {
         info_json["Options"] =
             serde_json::to_value(prm_param.Options.clone()).expect("serde_json,Options失败");
     }
+    if prm_superframe > 0 {
+        info_json["Super"] = serde_json::json!(1);
+    }
+    info_json["LongName"] = serde_json::Value::String(prm_param.LongName.clone());
 
     println!("--- begin: {prm_name} ---");
     let mut dword_err: u8 = 0x0; //用于记录get_dword_raw()的错误标记

@@ -108,8 +108,8 @@ class ARINC717():
                 self.supcount_idx = val #超级帧索引
                 #if self.word_cnt < 12800 :
                 #    print("  --->超级帧索引:{}".format( self.supcount_idx))
-            #超级帧判断
-            if prm_superframe <= 0 or (prm_superframe == self.supcount_idx + 1) :
+            #超级帧判断, 简单的 &0xf
+            if prm_superframe <= 0 or (prm_superframe == (self.supcount_idx & 0xf) + 1) :
                 rate_cnt = 0.0
                 #dword_raw: i32
                 #按记录组循环. 单个记录组为一个完整的记录
@@ -423,14 +423,27 @@ class ARINC717():
             pm_find = self.prm['param'][param]
         else:
             print("参数没找到:\"{}\"".format( param))
-            return pm_list
+            return {}
+        #print(pm_find)
         info={}
         info["RecFormat"]= pm_find["RecFormat"]
-        info["Unit"]=pm_find["Unit"]
-        if "range" in pm_find:
+        if "rate" in pm_find:
+            info["Rate"]= pm_find["rate"]
+        if pm_find["signed"]:
+            info["Signed"]= 1
+        if len(pm_find["Unit"])>0:
+            info["Unit"]=pm_find["Unit"]
+        if "range" in pm_find and len(pm_find["range"])>0:
             info["Range"]=pm_find["range"]
+        if "res" in pm_find and len(pm_find["res"])>0:
+            info["Res"]=pm_find["res"]
+        if "ConvConfig" in pm_find and len(pm_find["ConvConfig"])>0:
+            info["Conv"]=pm_find["ConvConfig"]
         if "Options" in pm_find and len(pm_find["Options"])>0:
             info["Options"]= pm_find["Options"]
+        if pm_find["words"][0][0]>0: #是超级帧参数
+            info["Super"]=1
+        info["LongName"]=pm_find["LongName"].strip()
         return info
     
     def close(self):

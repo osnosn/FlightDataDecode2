@@ -25,14 +25,19 @@ pub struct Param {
     //pub signRecType: bool, //true=01,有符号; false=00,无符号;
     pub RecFormat: String,
     pub ConvConfig: Vec<u8>, // 1443 BCD
-    pub Unit: String,        //计量单位。解码过程未使用,可以不填写
-    pub LongName: String,    //解码过程未使用,可以不填写
+    #[serde(default = "default_rate")]
+    pub rate: i16,
+    pub Unit: String,     //计量单位。解码过程未使用,可以不填写
+    pub LongName: String, //解码过程未使用,可以不填写
     #[serde(default = "default_options")]
     pub Options: Vec<(i16, String)>, //DIS 的枚举值
 }
 //为Options提供默认值
 fn default_options() -> Vec<(i16, String)> {
     vec![]
+}
+fn default_rate() -> i16 {
+    0
 }
 
 impl PrmConf {

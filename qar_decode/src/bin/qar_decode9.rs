@@ -636,10 +636,32 @@ fn get_param(
     let mut info_json: serde_json::Value =
         serde_json::from_str("{}").expect("serde_json::from_str失败");
     info_json["RecFormat"] = serde_json::Value::String(prm_param.RecFormat.clone());
-    if prm_param.RecFormat == "DIS" {
+    if prm_param.signed {
+        //info_json["Signed"] = serde_json::to_value(1).unwrap();
+        info_json["Signed"] = serde_json::json!(1);
+    }
+    if prm_param.rate != 0 {
+        info_json["Rate"] = serde_json::json!(prm_param.rate);
+    }
+    if prm_param.Unit.len() > 0 {
+        info_json["Unit"] = serde_json::Value::String(prm_param.Unit.clone());
+    }
+    if prm_param.res.len() > 0 {
+        info_json["Res"] = serde_json::to_value(prm_param.res.clone()).expect("serde_json,Res失败");
+        //info_json["Res"] = serde_json::json!(prm_param.res.clone());
+    }
+    if prm_param.ConvConfig.len() > 0 {
+        info_json["Conv"] =
+            serde_json::to_value(prm_param.ConvConfig.clone()).expect("serde_json,Conv失败");
+    }
+    if prm_param.RecFormat.starts_with("DIS") || prm_param.Options.len() > 0 {
         info_json["Options"] =
             serde_json::to_value(prm_param.Options.clone()).expect("serde_json,Options失败");
     }
+    if prm_superframe > 0 {
+        info_json["Super"] = serde_json::json!(1);
+    }
+    info_json["LongName"] = serde_json::Value::String(prm_param.LongName.clone());
 
     println!("--- begin: {prm_name} ---");
     let mut dword_err: u8 = 0x0; //用于记录get_dword_raw()的错误标记
@@ -648,8 +670,8 @@ fn get_param(
             &mut byte_cnt,
             &mut word_cnt,
             word_per_sec,
-            buflen,
             &buf,
+            buflen,
             VERBOSE,
         ) == false
         {
@@ -699,6 +721,7 @@ fn get_param(
             word_per_sec,
             0, //subframe_idx,获取SuperFrameCount时设0
             &buf,
+            buflen,
             &mut dword_err,
         ) {
             supcount_idx = val; //超级帧索引
@@ -707,8 +730,14 @@ fn get_param(
             }
         }
 
-        //超级帧判断
-        if prm_superframe <= 0 || (prm_superframe as i32) == (supcount_idx + 1) {
+        //超级帧判断,不能简单的比对, TODO
+        //counter是一个12bit的变化的值:
+        //   有的是(0-4095)步进1, 有的是(0-15)步进1, 有的是(0-3840)步进256,
+        //如果步进=1,则根据超级帧参数,定义的period,通过掩码计算后判断;
+        //  如 period=4, 用(counter & 0x3)判断周期; period=16, 用(counter & 0xf)判断周期;
+        //如果步进=256,则把counter右移位,再加上掩码判断;
+        //----这里就简单的使用 0xf 作为掩码----
+        if prm_superframe <= 0 || (prm_superframe as i32) == ((supcount_idx & 0xf) + 1) {
             //按4个subframe循环
             for subframe_idx in 1..=4 {
                 let mut rate_cnt: f32 = 0.0; //同一个subframe中,参数值的计数
@@ -722,6 +751,7 @@ fn get_param(
                         word_per_sec,
                         subframe_idx,
                         &buf,
+                        buflen,
                         &mut dword_err,
                     ) {
                         Some(val) => dword_raw = val,
@@ -735,7 +765,7 @@ fn get_param(
 
                     // 处理BCD, 即,十进制数值
                     // 从get_dword_raw()中,移动到这里处理。
-                    if "BCD" == prm_param.RecFormat {
+                    if "BCD" == prm_param.RecFormat { //来源prm配置
                         ValType = "float";
                         let mut value_i32: i32 = 0;
                         let mut ii = 0;
@@ -753,8 +783,8 @@ fn get_param(
                             t: frame_time,
                             v: value_f32,
                         });
-                    } else if prm_param.RecFormat.starts_with("ISO")
-                        || prm_param.RecFormat.starts_with("CHAR")
+                    } else if prm_param.RecFormat.starts_with("ISO") //来源prm配置,ISO#5
+                        || prm_param.RecFormat.starts_with("CHAR") //来源vec配置,CHARACTER
                     {
                         ValType = "str";
                         let mut value_str = "".to_string();
@@ -770,7 +800,7 @@ fn get_param(
                             t: frame_time,
                             v: value_str,
                         });
-                    } else if "UTC" == prm_param.RecFormat {
+                    } else if "UTC" == prm_param.RecFormat { //来源vec配置
                         ValType = "str";
                         let ss = (dword_raw & 0x3f) as u8;
                         let mm = ((dword_raw >> 6) & 0x3f) as u8;
@@ -782,6 +812,7 @@ fn get_param(
                         });
                     } else {
                         //处理BNR,DIS; PACKED_BITS,DISCRETE,
+                        //BNR,DIS(prm), BNR LINEAR,PACKED BITS,DISCRETE(vec)
                         ValType = "float";
                         let value_f32: f32 = (dword_raw as f32) * res_B + res_A; //通过系数，转换为工程值
                         if VERBOSE & 0x80 > 0 && word_cnt < 128000 {
@@ -816,24 +847,28 @@ fn get_dword_raw(
     word_per_sec: usize,
     subframe_idx: usize,
     buf: &Mmap,
+    buflen: usize,
     dword_err: &mut u8, //用于返回错误标记
 ) -> Option<i32> {
     let mut dword_raw: i32 = 0;
     let mut ttl_bit = 0; //总bit计数
 
+    //之前有superframe的进入过滤/判断,这里就不再过滤/判断
     //保存第一个值的superframe
-    //vec的超级帧参数，同组的值,分别取自不同的superframe位置,不同的subframe位置,TODO,
-    let _superframe_idx = prm_set[0];
+    //vec的超级帧参数，同组的值,分别取自不同的superframe位置,不同的subframe位置,
+    let superframe_0 = prm_set[0];
+
+    //只判断第一个值的subframe, 是否 指定了 subframe
+    //普通参数,同组的subframe应该相同。 但超级帧参数,就会不同,
+    //subframe_idx, prm_set[1] 取值为 0,1,2,3,4;
+    if subframe_idx > 0 && prm_set[1] > 0 && prm_set[1] != subframe_idx {
+        return None;
+    }
+
     //为了倒序循环,计算最后一组配置的值
     let mut ii: usize = (prm_set.len() / 6 - 1) * 6; //整数 乘除.
     loop {
         //倒序循环
-        //配置中 是否 指定了 subframe
-        //subframe_idx, prm_set[ii + 1] 取值为 0,1,2,3,4;
-        if subframe_idx > 0 && prm_set[ii + 1] > 0 && prm_set[ii + 1] != subframe_idx {
-            //普通参数,同组的subframe应该相同。 但超级帧参数,就会不同，TODO
-            return None;
-        }
         if prm_set[ii + 5] != 0 {
             //targetBit !=0 不知道如何拼接，暂时忽略这个配置。
             //    把错误标记返回，一个参数只给出提示信息一次。
@@ -851,7 +886,26 @@ fn get_dword_raw(
         let bits_mask: i32 = (1 << bits_cnt) - 1;
         dword_raw <<= bits_cnt;
 
-        let byte_pos: usize;
+        //如果指定了superframe,假设每段的superframe还有不同
+        //PRM配置同组superframe都相同，VEC配置superframe有不同
+        let super_offset: usize;
+        let minus: bool;
+        if prm_set[ii + 0] > 0 {
+            if prm_set[ii + 0] >= superframe_0 {
+                super_offset = (prm_set[ii + 0] - superframe_0) * word_per_sec * 2 * 4;
+                minus = false;
+            } else {
+                super_offset = (superframe_0 - prm_set[ii + 0]) * word_per_sec * 2 * 4;
+                minus = true;
+            }
+        } else {
+            super_offset = 0;
+            minus = false;
+        }
+
+        //取值位置,暂不考虑super_offset
+        //PRM配置同组subframe都相同，VEC配置subframe会有不同
+        let mut byte_pos: usize;
         if prm_set[ii + 1] > 0 {
             //subframe
             byte_pos =
@@ -862,9 +916,23 @@ fn get_dword_raw(
             //即, 参数的subframe 与 subframe_idx 不会同时为0
             byte_pos = byte_cnt + (subframe_idx - 1) * word_per_sec * 2 + (prm_set[ii + 2] - 1) * 2;
         }
-        dword_raw |= (((buf[byte_pos + 1] as i32) << 8 | buf[byte_pos] as i32)
-            >> (prm_set[ii + 3] - 1))
-            & bits_mask;
+
+        //根据super_offset位置,前移或后移取值位置;如果超出文件大小,则不取值
+        if minus {
+            if byte_pos >= super_offset && byte_pos - super_offset < buflen - 1 {
+                byte_pos -= super_offset;
+                dword_raw |= (((buf[byte_pos + 1] as i32) << 8 | buf[byte_pos] as i32)
+                    >> (prm_set[ii + 3] - 1))
+                    & bits_mask;
+            }
+        } else {
+            if byte_pos + super_offset < buflen - 1 {
+                byte_pos += super_offset;
+                dword_raw |= (((buf[byte_pos + 1] as i32) << 8 | buf[byte_pos] as i32)
+                    >> (prm_set[ii + 3] - 1))
+                    & bits_mask;
+            }
+        }
 
         if ii > 0 {
             ii -= 6; //step
@@ -892,8 +960,8 @@ fn find_frame(
     byte_cnt: &mut usize,
     word_cnt: &mut usize,
     word_per_sec: usize,
-    buflen: usize,
     buf1: &Mmap,
+    buflen: usize,
     VERBOSE: i16,
 ) -> bool {
     let buf = buf1;
@@ -1047,6 +1115,6 @@ fn showHelp(bin_name: String) {
     println!("   增加subframe判断，处理了符号位。");
     println!("   更改使用hashmap保存配置。配置中增加targetBit。");
     println!("   增加superFrame配置。尝试解码超级帧参数。");
-    println!("   可以处理BNR,DIS,BCD,ISO格式的参数。");
+    println!("   可以处理BNR,DIS,BCD,ISO,CHAR,UTC格式的参数。");
     println!("      author: osnosn@126.com");
 }
