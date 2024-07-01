@@ -330,14 +330,15 @@ def words_sort(words):
     还是按本来的顺序, 解码结果似乎比较正确
     '''
     for jj in range(0,len(words)):
-        if len(words[jj])>5:
+        if len(words[jj])>6:
             tmp=[]
-            for ii in range(0,len(words[jj]),5):
-                tmp.append([ii,words[jj][ii+4]])
-            tmp.sort(key=lambda x:x[1],reverse=False)
+            for ii in range(0,len(words[jj]),6):
+                tmp.append([ii,words[jj][ii+5]])
+            tmp.sort(key=lambda x:x[1],reverse=False) #正序,target最大值放最后,应该用这个
+            tmp.sort(key=lambda x:x[1],reverse=True) #倒序,target最大值放最前
             word_sorted=[]
             for v2 in tmp:
-                word_sorted.extend([words[jj][v2[0]], words[jj][v2[0]+1], words[jj][v2[0]+2], words[jj][v2[0]+3], words[jj][v2[0]+4],])
+                word_sorted.extend([words[jj][v2[0]], words[jj][v2[0]+1], words[jj][v2[0]+2], words[jj][v2[0]+3], words[jj][v2[0]+4], words[jj][v2[0]+5],])
             words[jj]=word_sorted
     pass
 def read_parameter_file(dataver):

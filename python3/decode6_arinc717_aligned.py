@@ -40,6 +40,7 @@ class ARINC717():
 
     def get_param(self, prm_name, filename_write):
         #  (frame_pos, param_set, word_per_sec ):
+        pm_list=[]   #用于返回,解码后的数据
 
         # 参数的配置,
         #prm_words #取值位置的配置
@@ -52,9 +53,10 @@ class ARINC717():
             prm_param = self.prm['param'][prm_name]
         else:
             print("参数没找到:\"{}\"".format( prm_name))
-            return
+            return pm_list
         prm_words = prm_param['words']
-        prm_superframe = prm_param['superframe']
+        #prm_superframe = prm_param['superframe']
+        prm_superframe = prm_words[0][0]
         if len(prm_param['res'])>0:
             [_, _, res_A, res_B, res_C] = prm_param['res'][0]
         else:
@@ -65,7 +67,7 @@ class ARINC717():
             prm_superFrameCnt_prm = self.prm['param']["SuperFrameCounter"]
         else:
             print("参数没找到:\"{}\"".format( "SuperFrameCounter"))
-            return
+            return pm_list
         prm_superFrameCnt = prm_superFrameCnt_prm['words'][0]
         if "UTC_HOUR" in self.prm['param']:
             frame_hour_prm = self.prm['param']["UTC_HOUR"]
@@ -89,7 +91,7 @@ class ARINC717():
         # 参数的 每秒记录个数
         # 这个值，算的很粗糙，可能会不正确 !!!!!
         #param_rate: f32
-        if prm_words[0][0] == 0 :
+        if prm_words[0][1] == 0 :
             param_rate = len(prm_words)
         else :
             param_rate = 1
@@ -174,29 +176,29 @@ class ARINC717():
         dword_raw = 0
         ttl_bit = 0 #总bit计数
         #为了倒序循环,计算最后一组配置的值
-        ii = (len(prm_set) // 5 - 1) * 5 #整数 乘除.
+        ii = (len(prm_set) // 6 - 1) * 6 #整数 乘除.
         while True:
             #倒序循环
             #配置中 是否 指定了 subframe
-            if prm_set[ii] > 0 and prm_set[ii] != self.subframe_idx :
+            if prm_set[ii+1] > 0 and prm_set[ii+1] != self.subframe_idx :
                 return None
-            if prm_set[ii + 4] != 0 :
+            if prm_set[ii + 5] != 0 :
                 #targetBit !=0 不知道如何拼接，暂时忽略这个配置。只给出提示信息。
                 print("--> INFO.targetBit !=0, 取值结果可能不正确")
-            bits_cnt = prm_set[ii + 3] - prm_set[ii + 2] + 1
+            bits_cnt = prm_set[ii + 4] - prm_set[ii + 3] + 1
             ttl_bit += bits_cnt #总bit位数
             bits_mask = (1 << bits_cnt) - 1
             dword_raw <<= bits_cnt
-            #dword_raw |= (((self.raw[self.byte_cnt + (prm_set[ii + 1] - 1) * 2 + 1]) << 8 | self.raw[self.byte_cnt + (prm_set[ii + 1] - 1) * 2]) >> (prm_set[ii + 2] - 1)) & bits_mask
-            dword_raw |= (( self.getWord(self.byte_cnt + (prm_set[ii + 1] - 1) * 2) ) >> (prm_set[ii + 2] - 1)) & bits_mask
+            #dword_raw |= (((self.raw[self.byte_cnt + (prm_set[ii + 2] - 1) * 2 + 1]) << 8 | self.raw[self.byte_cnt + (prm_set[ii + 2] - 1) * 2]) >> (prm_set[ii + 3] - 1)) & bits_mask
+            dword_raw |= (( self.getWord(self.byte_cnt + (prm_set[ii + 2] - 1) * 2) ) >> (prm_set[ii + 3] - 1)) & bits_mask
             if ii > 0 :
-                ii -= 5 #step
+                ii -= 6 #step
             else :
                 break
 
         #如果有符号位，并且，最高位为1 . 默认最高bit为符号位.
-        #if param_prm.signed == true && dword_raw & (1 << (ttl_bit - 1)) > 0 {
-        if param_prm['signRecType'] == True and dword_raw & (1 << (ttl_bit - 1)) > 0 :
+        #if param_prm['signRecType'] == True and dword_raw & (1 << (ttl_bit - 1)) > 0 :
+        if param_prm['signed']      == True and dword_raw & (1 << (ttl_bit - 1)) > 0 :
             #计算补码
             dword_raw -= 1 << ttl_bit
             #println!("--> INFO.signed=true, 计算补码")
