@@ -99,6 +99,7 @@ class ARINC717():
         dword_error = 0
         #value; #解码后的工程值
         #frame_time #frame时间轴
+        self.words_sort(prm_words) #按target排序, 怎么排序都不对,#注释这行,还是用原始顺序
         while True :
             if self.find_SYNC() == False:
                 break
@@ -120,9 +121,40 @@ class ARINC717():
                         continue
                     else:
                         dword_raw = val
-                    value = float(dword_raw) * res_B + res_A #通过系数，转换为工程值
                     frame_time = float(self.subframe_cnt) + (rate_cnt / param_rate)
-                    pm_list.append({'t':round(frame_time,10),'v':round(value,10)})
+                    if 'BCD' == prm_param['RecFormat'] :
+                        # 处理BCD, 即,十进制数值
+                        bcd_dword = 0
+                        ii = 0
+                        #倒序
+                        for bcd_bits in reversed(prm_param['ConvConfig']) :
+                            bits_mask = (1 << bcd_bits) - 1
+                            bcd_dword += (bits_mask & dword_raw) * (10 ** ii)
+                            dword_raw >>= bcd_bits
+                            ii += 1
+                        dword_raw = bcd_dword
+                        #BCD也有转换系数
+                        value = float(dword_raw) * res_B + res_A #通过系数，转换为工程值
+                        value = round(value,10)
+                    elif prm_param['RecFormat'].startswith("ISO") or prm_param['RecFormat'].startswith("CHAR"):
+                        # 处理CHR,
+                        chr_dword = ""
+                        #倒序
+                        for chr_bits in reversed(prm_param['ConvConfig']) :
+                            bits_mask = (1 << chr_bits) - 1
+                            chr_dword += chr(bits_mask & dword_raw)
+                            #chr_dword += chr(self.reverse_bits(bits_mask & dword_raw, chr_bits))
+                            dword_raw >>= chr_bits
+                        value = chr_dword
+                    elif "UTC" == prm_param['RecFormat']:
+                        ss= dword_raw & 0x3f
+                        mm= (dword_raw>>6) & 0x3f
+                        hh= (dword_raw>>12) & 0x3f
+                        value="{:02}:{:02}:{:02}".format(hh,mm,ss)
+                    else:
+                        value = float(dword_raw) * res_B + res_A #通过系数，转换为工程值
+                        value = round(value,10)
+                    pm_list.append({'t':round(frame_time,10),'v':value})
 
                     #if self.word_cnt < 12800 :
                     #    print( "subframe:{}, frametime:{:.5f}, val:{}".format( self.subframe_idx, frame_time, value))
@@ -172,19 +204,40 @@ class ARINC717():
             #计算补码
             dword_raw -= 1 << ttl_bit
             #println!("--> INFO.signed=true, 计算补码")
-        # 处理BCD, 即,十进制数值
-        if 'BCD' == param_prm['RecFormat'] :
-            bcd_dword = 0
-            ii = 0
-            #倒序
-            for bcd_bits in reversed(param_prm['ConvConfig']) :
-                bits_mask = (1 << bcd_bits) - 1
-                bcd_dword += (bits_mask & dword_raw) * (10 ** ii)
-                dword_raw >>= bcd_bits
-                ii += 1
-            dword_raw = bcd_dword
         return dword_raw,dword_error
 
+    def words_sort(self,words):
+        '''
+        -- 解码时, 是左移,倒序取值,放入低位
+        如果按target的正序排序, 解码结果不正确
+        如果按target的倒序排序, 解码结果也不正确
+        还是按本来的顺序, 解码结果似乎比较正确
+        '''
+        print('FR:',words)
+        for jj in range(0,len(words)):
+            if len(words[jj])>6:
+                tmp=[]
+                for ii in range(0,len(words[jj]),6):
+                    tmp.append([ii,words[jj][ii+5]])
+                tmp.sort(key=lambda x:x[1],reverse=False) #正序,target最大值放最后,应该用这个
+                #tmp.sort(key=lambda x:x[1],reverse=True) #倒序,target最大值放最前
+                word_sorted=[]
+                for v2 in tmp:
+                    word_sorted.extend([words[jj][v2[0]], words[jj][v2[0]+1], words[jj][v2[0]+2], words[jj][v2[0]+3], words[jj][v2[0]+4], words[jj][v2[0]+5],])
+                words[jj]=word_sorted
+        print('TO:',words)
+        pass
+    def reverse_bits(self,bits,bitlen):
+        if bitlen<1 or bitlen>31:
+            return bits
+        result=0
+        mask= 0x1
+        for ii in range(0,bitlen):
+            result <<=1
+            if bits & mask >0:
+                result |= 0x1
+            mask <<=1
+        return result
     def getWord(self, pos, word_len=1):
         '''
         word_len=1,取2字节; word_len=2,取4字节;

@@ -910,7 +910,7 @@ fn showLuaHelp(_bin_name: String) {
     let buf = r##"
  Luajit-5.2
    table=json.decode(str)
-       把json字符串, 解码为lua的table,失败:会抛出错误
+       把json字符串, 解码为lua的table,失败:会抛出错误; 可用pcall()调用.
    str=json.encode(table, pretty)
        把lua的table, 转化为json字符串, pretty=true显示更漂亮
        支持 json.null值, json.array()函数.
@@ -918,7 +918,7 @@ fn showLuaHelp(_bin_name: String) {
        获取/设置Header.meta信息 (json字符串格式), 此属性,可读,可写
    str=qar:get_meta()  OR  qar.get_meta(qar)
        获取Header.meta信息 (json字符串格式)
-   str=qar:get_meta()  OR  qar.get_meta(qar)
+   str=qar:set_meta()  OR  qar.set_meta(qar)
        设置Header.meta信息 (json字符串格式)
    num=qar:get_param_num()
        获取所有参数的数量

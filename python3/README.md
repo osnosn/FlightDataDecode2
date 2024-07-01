@@ -17,13 +17,13 @@ Flight Data Decode 2, 解析,解码,译码 原始QAR数据 raw.dat 文件。ARIN
 * `bitstream2aligned.py`, 把bitstream格式转换为aligned格式, 并把数据帧对齐。(补帧未实现,2024-06)   
 * `decode5_arinc717_aligned.py` 解320.PRM, raw320.dat   
   - 用 `param_prm5.py` 解码配置320.PRM   
-* `decode6_arinc717_aligned.py` 解单个参数
+* ~~decode6_arinc717_aligned.py 解单个参数~~   
   - 用命令行参数指定 "解码配置" 和 "原始数据文件"   
-* `decode8_arinc717_aligned.py` 解单个参数, 或所有参数
+* `decode8_arinc717_aligned.py` 解单个参数, 或所有参数   
   - 用命令行参数指定 "解码配置" 和 "原始数据文件"   
   - 解所有参数, 写入自定格式的单文件   
   - 这个py程序旧了。对应`qar_decode8`的后续修改, 没有同步修改这个py程序。   
-* 对应`qar_decode9`的rust程序, 没写python3的版本。
+* 对应`qar_decode9`的rust程序, 没写python3的版本。  
 
 
 ## 其他  
